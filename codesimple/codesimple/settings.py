@@ -26,6 +26,11 @@ INSTALLED_APPS = [
     'exercise',
     'users',
     'api',
+    # third part apps
+    'widget_tweaks',
+    'rest_framework',
+    'mail_templated',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
