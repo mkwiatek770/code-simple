@@ -1,5 +1,10 @@
 from django.contrib import admin
-from users.models import Badge, ProgrammingLanguage, ProfileUser
+from users.models import (
+    Badge,
+    ProgrammingLanguage,
+    ProfileUser,
+    UserMessage,
+)
 
 
 @admin.register(Badge)
@@ -14,4 +19,9 @@ class ProgrammingLanguageAdmin(admin.ModelAdmin):
 
 @admin.register(ProfileUser)
 class ProfileUserAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(UserMessage)
+class UserMessageAdmin(admin.ModelAdmin):
     pass

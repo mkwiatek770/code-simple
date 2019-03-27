@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
+import os
+from ckeditor.fields import RichTextField
 
 
 def avatar_path(instance, filename):
@@ -108,3 +110,23 @@ class ProfileUser(AbstractUser):
     class Meta:
         # email set to required
         unique_together = ("email",)
+
+
+class UserMessage(models.Model):
+    sender = models.ForeignKey(
+        ProfileUser,
+        related_name="sender",
+        on_delete=models.CASCADE
+    )
+    receiver = models.ForeignKey(
+        ProfileUser,
+        related_name="receiver",
+        on_delete=models.CASCADE
+    )
+    subject = models.CharField(max_length=200)
+    message = RichTextField()
+    date_sent = models.DateTimeField(auto_now=True)
+    read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.sender} --> {self.receiver}"
