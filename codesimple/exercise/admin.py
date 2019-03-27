@@ -1,6 +1,7 @@
 from django.contrib import admin
 from exercise.models import (
     Exercise,
+    ExerciseUser,
     ExerciseTest,
     Tag,
     ExerciseTestUser,
@@ -20,6 +21,11 @@ class ExerciseAdmin(admin.ModelAdmin):
 
 @admin.register(ExerciseTest)
 class ExerciseTestAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ExerciseUser)
+class ExerciseUserAdmin(admin.ModelAdmin):
     pass
 
 
