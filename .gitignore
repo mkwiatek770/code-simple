@@ -1,5 +1,9 @@
 # File to store secret informations
-*secrets.py 
+*secrets.py
+
+# Directory to store avatars during development
+*avatars/
+  
 # Byte-compiled / optimized / DLL files
 *__pycache__/
 *.py[cod]
