@@ -11,6 +11,8 @@ install:
 - pip install -r requirements.txt
 before_script:
 - psql -c 'create database code_simple;' -U postgres
+- python manage.py makemigrations
+- python manage.py migrate
 script:
 - python manage.py test && flake8
 notifications:
