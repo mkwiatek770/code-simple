@@ -53,3 +53,11 @@ class ExerciseTest(models.Model):
 
     def __str__(self):
         return f"{self.exercise.title} {self.user_input} --> {self.expected_output}"
+
+
+class ExerciseTestUser(models.Model):
+
+    user = models.ForeignKey('users.ProfileUser', on_delete=models.CASCADE)
+    exercise_test = models.ForeignKey(ExerciseTest, on_delete=models.CASCADE)
+    output = models.CharField(max_length=255, null=True)
+    passed = models.NullBooleanField()  # later in views changed solved to passed
