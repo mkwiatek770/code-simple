@@ -6,7 +6,7 @@ python:
 env:
 - DJANGO=2.1 DB=postgres
 install:
-- pip install --user -r requirements.txt
+- pip install -r requirements.txt
 before_script:
 - psql -c 'create database code_simple;' -U postgres
 script:
