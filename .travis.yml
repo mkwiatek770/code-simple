@@ -4,11 +4,9 @@ services:
 python:
 - 3.6
 env:
-- DJANGO=2.1.7 DB=postgres
-before_install:
-- export DJANGO_SETTINGS_MODULE=ledenbestand.settings.local
+- DJANGO=2.1 DB=postgres
 install:
-- pip install -r requirements.txt
+- pip install --user -r requirements.txt
 before_script:
 - psql -c 'create database code_simple;' -U postgres
 - python manage.py makemigrations
