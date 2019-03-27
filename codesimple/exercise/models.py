@@ -55,6 +55,39 @@ class ExerciseTest(models.Model):
         return f"{self.exercise.title} {self.user_input} --> {self.expected_output}"
 
 
+class ExerciseUser(models.Model):
+    INDENTS = (
+        ("one", 1),
+        ("two", 2),
+        ("four", 4)
+    )
+
+    EDITOR_COLORS = (
+        (1, "twilight"),
+        (2, "dracula"),
+        (3, "monokai"),
+        (4, "default"),
+    )
+
+    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    user = models.ForeignKey('users.ProfileUser', on_delete=models.CASCADE)
+    code = models.TextField()
+    code_style_indent = models.IntegerField(choices=INDENTS, default=2)
+    code_style_color = models.IntegerField(choices=EDITOR_COLORS, default=2)
+    last_modification = models.DateTimeField()
+    solved = models.BooleanField(default=False)
+    submitted = models.BooleanField(default=False)
+    like = models.NullBooleanField()
+    traceback = models.CharField(max_length=4000, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.last_modification = timezone.now()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.exercise} - {self.user}"
+
+
 class ExerciseTestUser(models.Model):
 
     user = models.ForeignKey('users.ProfileUser', on_delete=models.CASCADE)
