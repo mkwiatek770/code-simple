@@ -1,0 +1,32 @@
+{% block title %}
+    CodeSimple - Learn Programming
+{% endblock %}
+
+{% block style %}
+.welcome-banner{
+            position:fixed;
+            top:50%;
+            left:50%;
+            transform: translate(-50%, -50%);
+        }
+
+{% endblock %}
+
+{% block main %}
+    
+
+    <div class="container">
+    <div class="row welcome-banner">
+        <div class="col-8 offset-2 ">
+            <h2 style="border-bottom:1px solid white; color:white; text-align:center; padding-bottom: 4px;">Do you want to boost your programming skills?</h1>
+            <a href="{% url 'signup' %}"><button class="btn btn-primary w-100 mt-4" style="height: 50px; font-size: 25px; font-weight:bold;">SIGN UP</button></a>    
+        </div>
+    </div>
+    
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

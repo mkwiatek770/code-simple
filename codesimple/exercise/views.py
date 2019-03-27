@@ -12,7 +12,7 @@ class LandingPageView(TemplateView):
     def get(self, request):
         if request.user.is_authenticated:
             return redirect(reverse("home"))
-        return render(request, self.template_engine)
+        return render(request, self.template_name)
 
 
 class HomeView(View):
