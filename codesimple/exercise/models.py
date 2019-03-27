@@ -61,3 +61,13 @@ class ExerciseTestUser(models.Model):
     exercise_test = models.ForeignKey(ExerciseTest, on_delete=models.CASCADE)
     output = models.CharField(max_length=255, null=True)
     passed = models.NullBooleanField()  # later in views changed solved to passed
+
+
+class ExerciseUserComment(models.Model):
+    user = models.ForeignKey("users.ProfileUser", on_delete=models.CASCADE)
+    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    message = models.TextField(max_length=4096)
+    date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.exercise.title}"
