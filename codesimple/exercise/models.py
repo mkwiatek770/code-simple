@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from ckeditor.fields import RichTextField
+from django.utils import timezone
 # Create your models here.
 
 
@@ -52,7 +53,10 @@ class ExerciseTest(models.Model):
     expected_output = models.CharField(max_length=255)
 
     def __str__(self):
-        return f"{self.exercise.title} {self.user_input} --> {self.expected_output}"
+        title = self.exercise.title
+        user_input = self.user_input
+        expected_output = self.expected_output
+        return f"{title} {user_input} --> {expected_output}"
 
 
 class ExerciseUser(models.Model):
@@ -93,7 +97,7 @@ class ExerciseTestUser(models.Model):
     user = models.ForeignKey('users.ProfileUser', on_delete=models.CASCADE)
     exercise_test = models.ForeignKey(ExerciseTest, on_delete=models.CASCADE)
     output = models.CharField(max_length=255, null=True)
-    passed = models.NullBooleanField()  # later in views changed solved to passed
+    passed = models.NullBooleanField()  # passed > solved
 
 
 class ExerciseUserComment(models.Model):
