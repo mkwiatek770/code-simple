@@ -1,0 +1,573 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+Zadanie fibbonaci
+{% endblock %}
+
+{% block head %}
+    <style type="text/css" media="screen">
+        #editor { 
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size:30px;
+            width: 100%;
+            height:400px;
+            
+        }
+
+        #language-select{
+            position: absolute;
+            top:0;
+            right: 0;
+            width: 100px;
+            height: 25px;
+            z-index: 10;
+        }
+
+        
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row" style="width: 100%;">
+        <!--Code Content-->
+        <div class="col-lg-8 col-lg-push-4">
+            <div class="row mb-3">
+                {% comment %} <div class="col-6 col-sm-3 text-center" style="margin:0; padding:0;">
+                    <select class="bootstrap-select"  >
+                        <option value="1" selected="selected">Python</option>
+                        <option value="2">Javascript</option>
+                        <option value="3">C++</option>
+                        <option value="4">Java</option>
+                    </select>
+                </div>
+                <div class="col-6 col-sm-3 text-center" style="margin:0; padding:0;">
+                   <button class="btn btn-outline-success" >
+                        <i class="fas fa-redo"></i>
+                        <span> RESET</span>
+                    </button>     
+                </div> {% endcomment %}
+                <div class="col-xs-12 col-sm-4 text-center mb-3" style="margin:0; padding:0;">
+                    <button class="btn btn-outline-success" style="width:70%; margin-left:auto; margin-right:auto;">
+                        <i class="fas fa-redo"></i>
+                        <span> RESET</span>
+                    </button>   
+                </div>
+
+                <div class="col-xs-12 col-sm-4 text-center mb-3" style="margin:0; padding:0;">
+                    <button id="runBtn" class="btn btn-outline-success" style="width:70%; margin-left:auto; margin-right:auto;">
+                        <i class="fas fa-play"></i>
+                        <span> RUN TESTS</span>
+                    </button>
+                </div>
+                <div class="col-xs-12 col-sm-4 text-center" style="margin:0; padding:0;">
+                    <button id="submitBtn" class="btn btn-outline-success disabled" disabled style="width:70%; margin-left:auto; margin-right:auto;" disabled>
+                        <i class="fas fa-fire"></i>
+                        <span> SUBMIT</span>
+                    </button>
+                </div> 
+
+            </div>
+
+            <div class="row">
+                <div class="col" style="position:relative; height: 400px;">
+                    <select style="border:0px;" id="language-select">
+                        <option value="1" selected="selected">Python</option>
+                        <option value="2">Javascript</option>
+                        <option value="3">C++</option>
+                        <option value="4">Java</option>
+                    </select>
+                    <div id="editor">{{ code }}</div>
+                </div>
+            </div>
+
+            <!-- TESTY -->
+            <div class="row">
+                <div class="col" style="padding: 0px;">
+                {% if not exercise_user.traceback %}
+                    <div id="accordion">
+                {% else %}
+                    <div id="accordion" style="display:none;">
+                {% endif %}
+                    {% for test in test_users %}
+                        <div class="card">
+                            <div class="card-header test-header">
+                                <h5>
+                                    <a href="#collapse{{ forloop.counter }}" data-parent="#accordion" data-toggle="collapse">
+                                        Test {{ forloop.counter }}
+                                        {% if test.solved == Null %}
+                                            <span>
+                                                <i class="fas"></i>
+                                            </span>
+                                        {% elif test.solved %}
+                                            <span>
+                                                <i class="fas fa-check" style="color: green;"></i>
+                                            </span>  
+                                        {% else %}
+                                            <span>
+                                                <i class="fas fa-times" style="color: red"></i>
+                                            </span> 
+                                        {% endif %}
+                                    </a>
+                                </h5>
+                            </div>
+                            <div class="collapse" id="collapse{{ forloop.counter }}">
+                                <div class="card-body test-body">
+                                    <p>
+                                        <span class="font-weight-bold">Input: </span>
+                                        <span>{{ test.exercise_test.user_input }}</span>
+                                    </p>
+                                    <p>
+                                        <span class="font-weight-bold">Output: </span>
+                                        <span>{{ test.output }}</span>
+                                    </p>
+                                    <p>
+                                        <span class="font-weight-bold">Expected Output: </span>
+                                        <span>{{ test.exercise_test.expected_output }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+
+                
+                {% if exercise_user.traceback %}
+                    {% comment %} Traceback {% endcomment %}
+                        <div class="traceback" style="margin-left: 15px; font-size: 20px; color: white; background-color: black;">
+                            {{ exercise_user.traceback }}
+                        </div>
+                    
+                {% else %}     
+                        <div class="traceback" style="display:none; font-size: 20px; color: white; background-color: black;">
+                        </div>
+                {% endif %} 
+                </div>                
+            
+            </div> 
+
+
+        </div>
+
+        <!--Sidebar Exercise Explaination -->
+        <div class="col-lg-4 col-lg-pull-8" style="height: 80vh; overflow: scroll;">
+            
+            <div class="row">
+                <div style="border-bottom: 1px solid black" class="col pb-3">
+                    <h3>{{ exercise.title }}</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <i class="fas fa-code"></i>
+                    <span>{{ exercise.get_level_display }}</span>
+                </div>
+                <div class="col-6">
+                    <i class="fas fa-star"></i>
+                    <span>{{ exercise.experience_points }}</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <p>Categories: 
+                        {% for tag in exercise.tags.all %}
+                            <span class="font-weight-bold">{{ tag.name }} </span>
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col" style="font-size: 20px;">
+                    <p>{{ exercise.description|safe }}</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-8" style="font-size: 20px;">
+                    {% if exercise_user.like %}
+                        <button class='btn' id="likeBtn" data-clicked="true" style='background-color:transparent; font-size: 20px;'>
+                            <i class="far fa-thumbs-up" style="color: green;"></i>
+                        </button>
+                         <span style="font-size:20px;" class="mr-2">{{ exercise.likes }}</span>
+                         <button class='btn' id="dislikeBtn" style='background-color:transparent; font-size: 20px;'>
+                            <i class="far fa-thumbs-down"></i>
+                        </button>
+                         <span style="font-size:20px;" class="mr-2">{{ exercise.dislikes }}</span>
+                    {% elif exercise_user.like == False %}
+                        <button class='btn'  id="likeBtn" style='background-color:transparent; font-size: 20px;'>
+                            <i class="far fa-thumbs-up"></i>
+                        </button>
+                         <span style="font-size:20px;" class="mr-2">{{ exercise.likes }}</span>
+                         <button class='btn' id="dislikeBtn" data-clicked="true" style='background-color:transparent; font-size: 20px;'>
+                            <i class="far fa-thumbs-down" style="color: red;"></i>
+                        </button>
+                         <span style="font-size:20px;" class="mr-2">{{ exercise.dislikes }}</span>
+                    {% elif exercise_user.like == None %}
+                        <button class='btn' id="likeBtn" style='background-color:transparent; font-size: 20px;'>
+                            <i class="far fa-thumbs-up"></i>
+                        </button>
+                         <span style="font-size:20px;" class="mr-2">{{ exercise.likes }}</span>
+                         <button class='btn'  id="dislikeBtn" style='background-color:transparent; font-size: 20px;'>
+                            <i class="far fa-thumbs-down" ></i>
+                        </button>
+                         <span style="font-size:20px;" class="mr-2">{{ exercise.dislikes }}</span>
+
+                    {% endif %}
+                    
+                </div>
+                <div class="col-4 text-right">
+                    <button class="btn btn-success" data-toggle="modal" data-target="#comment-section">Comments</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} Comments(default - display:none) {% endcomment %}
+    <div class="modal"  id="comment-section" >
+        <div class="modal-dialog modal-lg" >
+            <div class="modal-content" style="height: 95vh !important; overflow: scroll;">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ exercise.title }} | Comments</h5>
+                    <button class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="message">Comment</label>
+                        <textarea class="form-control" id="message" rows="3"></textarea>
+                        <small class="form-text text-muted">Maximum characters: 400</small>
+                    </div>
+                    <button class="btn btn-outline-primary mb-4 " id="add-comment">Add Comment</button>
+
+                    <h4 style="border-bottom: 1px solid black; margin-bottom: 10px;">COMMENTS</h4>
+                    <div class="row">
+                        {% for comment in comments %}
+                            <div class="col-12 mb-4" style="border-bottom: 1px solid gray;">
+                                <div class="row">
+                                    <div class="col-2">
+                                        <img style=" height:50px; border-radius:100%" src="{% static 'img/page/avatar.png' %}" alt="">
+                                    </div>
+                                    <div class="col-10">
+                                        <p class="font-weight-bold">{{ comment.user.username }}</p>
+                                        <p style="color: gray;">{{ comment.date|timesince }} ago</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <p>{{ comment.message }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} Message modal {% endcomment %}
+    <div class="modal" id="messageModal">
+      <div class="modal-dialog" style="margin-top: 25%;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title message-modal-title"></h5>
+            <button class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body message-modal-body">
+            
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% comment %} Submit button modal {% endcomment %}
+    <div class="modal" id="submitModal">
+        <div class="modal-dialog" style="margin-top: 25%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">CONGRATULATIONS</h5>
+                </div>
+                <div class="modal-body submit-modal-body">
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url 'home' %}" class="btn btn-success">Home Page</a>
+                    <button class="ml-auto btn btn-primary" data-dismiss="modal">Stay on Page</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ACE LOGIC -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.2/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script
+			  src="https://code.jquery.com/jquery-3.3.1.js"
+			  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+			  crossorigin="anonymous"></script>
+    <script>
+    var editor = ace.edit("editor");
+    var testBtn = document.querySelector("#runBtn");
+    var submitBtn = document.querySelector("#submitBtn");
+    submitBtn.disabled = true;
+    
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/python");
+    {% comment %} console.log(editor.getValue()) {% endcomment %}
+    
+    // Obsługa testów i zwróconego responsa
+    testBtn.addEventListener("click", function(event){
+        event.preventDefault()
+        var code = editor.getValue();
+        var language = editor.session.$modeId.split("/")[2]
+
+        $.ajax({
+			url: "http://localhost:8000/api/exercises/{{ exercise.id }}/{{ request.user.id }}",
+			data: {
+			"code": code,
+            "language": language,
+            "container_name": "{{ container_name }}",
+            "csrfmiddlewaretoken": "{{ csrf_token }}"	
+			},
+			type: "POST",
+			dataType: "json"
+		}).done(sendCode)
+    })
+
+    submitBtn.addEventListener("click", function(event){
+        
+        $.ajax({
+            url: "http://localhost:8000/api/exercises/submit/{{ exercise.id }}/{{ request.user.id }}",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+            },
+            type: "POST",
+            dataType: "json"
+        }).done(renderSubmit)
+
+    })
+
+
+
+    function sendCode(response){
+        $.get("http://localhost:8000/api/exercises/{{ exercise.id }}/{{ request.user.id }}").done(renderTestResult).fail(function(){console.log("Fail")})
+    }
+
+    // tutaj będzie logika która wyświetli komunikat o tym że rozwiązał zadanie 
+    // wiadomośc będzie jako modal, użytkownik będzie miał opcje przejść do strony Home
+    // lub pozostać na tej stronie.
+    function renderSubmit(response){
+        
+        var submitModal = $("#submitModal");
+        var submitBody = $(".submit-modal-body")
+        
+        submitModal.modal("show");
+        submitBody.text(response.message);
+        
+    }
+
+    function renderTestResult(response){
+
+        var accordion = document.getElementById("accordion");
+        var div_traceback = document.querySelector(".traceback");
+
+        if (response.traceback === null){
+
+
+            accordion.style.display = "block";
+            div_traceback.style.display = "none";
+
+            var test_headers = $(".test-header");
+            var test_bodies = $(".test-body");
+            var all_passed = true;
+
+            for (var i = 0; i < response.tests.length; i++){
+                
+
+                var icon = test_headers.eq(i).find("h5").find("a").find("i");
+                if (response.tests[i][1] === response.tests[i][2]){
+                    icon.removeClass("fa-times").addClass("fa-check").css("color", "green");
+                }
+                else {
+                    icon.removeClass("fa-check").addClass("fa-times").css("color", "red");
+                    all_passed = false;
+                }
+
+                var output_span = test_bodies.eq(i).children().eq(1).children().eq(1);
+                output_span.text(response.tests[i][1]);
+                //var new_el = $("")
+            }
+            if (all_passed){
+                submitBtn.classList.remove("disabled");
+                submitBtn.disabled = false;
+                $(".message-modal-title").text("Congratulations")
+                $(".message-modal-body").text("Correct! All tests passed. Now you can submit your solution to access XP points")
+                
+            }
+            else{
+                $(".message-modal-title").text("Fail")
+                $(".message-modal-body").text("Incorrect! Tests not passed, improve your solution and then try again once again. Good luck.")
+            }
+            $("#messageModal").modal("show");
+
+        }
+        else{
+            
+            accordion.style.display = "none";
+            div_traceback.style.display = "block";
+
+            //var new_el = $("<div style='padding: 10px; color: white; background-color: black;'>");
+            //new_el.text(response.traceback);
+            //accordion.after(new_el);
+
+            
+            div_traceback.innerHTML = response.traceback;
+
+            submitBtn.classList.add("disabled");
+            submitBtn.disabled = true;
+        }
+        
+    }
+
+
+    // obsługa przycisków like i dislike
+    var likeBtn = document.getElementById("likeBtn");
+    var likenumber = likeBtn.nextElementSibling;
+    var dislikeBtn = document.getElementById("dislikeBtn");
+    var dislikenumber = dislikeBtn.nextElementSibling;
+
+    var likeclicked = false
+    var dislikeclicked = false
+
+
+    likeBtn.addEventListener("click", function(event){
+        event.stopPropagation()
+        likeclicked = true;
+
+        this.style.color = "green";
+        dislikeBtn.style.color = "black";
+
+        likenumber.innerHTML = parseInt(likenumber.innerHTML) + 1;
+        if (dislikeclicked || dislikeBtn.hasAttribute("data-clicked")){
+            dislikenumber.innerHTML = parseInt(dislikenumber.innerHTML) - 1;
+        }
+        
+        this.disabled = true;
+        dislikeBtn.disabled = false;
+
+
+        $.ajax({
+            url: "http://localhost:8000/api/exercises/{{ exercise.id }}/like/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+            },
+            type: "POST",
+            datatype: "json"
+        });
+        return false;
+
+    });
+
+    dislikeBtn.addEventListener("click", function(event){
+        event.stopPropagation()
+        dislikeclicked = true;
+
+        this.style.color = "red";
+        likeBtn.style.color = "black";
+
+        dislikenumber.innerHTML = parseInt(dislikenumber.innerHTML) + 1;
+        if (likeclicked || likeBtn.hasAttribute("data-clicked")){
+            likenumber.innerHTML = parseInt(likenumber.innerHTML) - 1;
+        }
+
+        this.disabled = true;
+        likeBtn.disabled = false;
+
+        $.ajax({
+            url: "http://localhost:8000/api/exercises/{{ exercise.id }}/dislike/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+            },
+            type: "POST",
+            datatype: "json"
+        })
+        return false;
+    })
+
+    // obsługa dodawania komentarzy
+
+    
+    var commentBtn = document.getElementById("add-comment");
+
+    commentBtn.addEventListener("click", function(event){
+        event.stopPropagation();
+        var message_content = document.getElementById("message").value;
+        
+        var row = this.nextElementSibling.nextElementSibling;
+        if (row.children.length > 0){
+            var first_comment = row.children[0];
+            var new_comment = first_comment.cloneNode(true);
+            new_comment.children[0].children[1].firstElementChild.innerHTML = "{{ request.user }}";
+            new_comment.children[0].children[1].children[1].innerHTML = "a few seconds ago";
+            new_comment.children[1].children[0].children[0].innerHTML = message_content;
+
+            row.insertBefore(new_comment, first_comment);
+        }
+            
+        else{
+            var row = $("#add-comment").next().next();
+
+            var new_col = $("<div class='col-12 mb-4' style='border-bottom: 1px solid gray;'>")
+            var first_row = $("<div class='row'>");
+            var second_row = $("<div class='row'>");
+            var first_row_first_col = $("<div class='col-2'>");
+            var first_row_second_col = $("<div class='col-10'>");
+            var first_row_first_col_img = $('<img style=" height:50px; border-radius:100%" src="{{ request.user.avatar.url }}" alt="">');
+            var first_row_second_col_first_p = $('<p class="font-weight-bold"></p>')
+            var first_row_second_col_second_p = $('<p style="color: gray;"></p>')
+            var second_row_first_col = $('<div class="col-12">')
+            var second_row_first_col_fist_p = $("<p>");
+
+            row.append(new_col);
+            
+            new_col.append(first_row);
+            new_col.append(second_row);
+
+            first_row.append(first_row_first_col);
+            first_row.append(first_row_second_col);
+            second_row.append(second_row_first_col);
+
+            first_row_first_col.append(first_row_first_col_img);
+            first_row_second_col.append(first_row_second_col_first_p);
+            first_row_second_col.append(first_row_second_col_second_p);
+            second_row_first_col.append(second_row_first_col_fist_p);
+            
+            first_row_second_col_first_p.text("{{ request.user }}");
+            first_row_second_col_second_p.text("a few seconds ago");
+            second_row_first_col_fist_p.text(message_content);
+
+        }
+
+
+        $.ajax({
+            url: "http://localhost:8000/api/exercises/{{ exercise.id }}/add-comment/",
+            data: {
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                "message": message_content,
+                
+            },
+            type: "POST",
+            datatype: "json"
+        })
+        
+        document.getElementById("message").value = "";
+
+    })
+
+
+</script>
+
+{% endblock %}

@@ -4,9 +4,12 @@ from django.views.generic import (
     TemplateView,
 )
 from exercise.models import (
+    Tag,
     Exercise,
     ExerciseUser,
-    Tag
+    ExerciseTest,
+    ExerciseTestUser,
+    ExerciseUserComment
 )
 from users.models import (
     Badge,
@@ -15,6 +18,9 @@ from users.models import (
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+import ast
+import json
+import docker
 
 
 def achievement_check(request):
@@ -147,5 +153,123 @@ class HomeView(LoginRequiredMixin, View):
             **kwargs
         })
 
+    def handle_no_permission(self):
+        return redirect(reverse("index"))
+
+
+def setup_container(user, exercise, container_name):
+    """Function creates new container dedicated to logged user
+    It's creating new ExerciseTestUser objects to store tests
+    history in database """
+    client = docker.from_env()
+    container = client.containers.run(
+        image=exercise.image_name,
+        detach=True,
+        tty=True,
+        name=container_name
+    )
+    start_code = container.exec_run("cat exercise.py", stdout=True)
+
+    # tests:
+    tests = ast.literal_eval(container.exec_run("python3 test_list.py", stdout=True)[
+        1].decode("utf-8"))
+    ExerciseUser.objects.create(
+        exercise=exercise,
+        user=user,
+        code=start_code
+    )
+
+    for counter in range(len(tests)):
+        exercise_test = ExerciseTest.objects.get(
+            exercise=exercise, test_number=counter + 1)
+        ExerciseTestUser.objects.create(
+            user=user,
+            exercise_test=exercise_test,
+            output=None,
+        )
+    return container
+
+
+class ExerciseView(LoginRequiredMixin, View):
+    """View for Exercise dedicated for user"""
+
+    # tu będzie logika, która będzie sprawdzała czy obecnie zalogowany użytkownik ma w bazie
+    # ExerciseUser rekord jeśli tak - to wystartuj kontener o nazwie <użytkownik>_<zadanie_id>
+    # jeśli nie to stwórz nowy kontener, zwróć to co jest w polu code w tabeli ExerciseUser,
+    # dodać w template logikę że jeśli użytkownik nie dostał jeszcze response od API czy
+    # jego testy przeszły (bo jeszcze nie uruchamiał) - to nie pozwól kliknąc na przycisk submit
+    # zwrócić kod który pobierze z kontenera (docker container exec -it cat exercise.py)
+    def get(self, request, slug):
+        """If User has been into this exercise, container will exists in memory
+        so container on specific name will be started. Otherwise new container will
+        be started, also there will be new object in ExerciseUser model.
+
+        To allow comunication with containers - we use docker library.
+        We fetch code using `cat <filename>`. This code is passed to context.
+        """
+        exercise = Exercise.objects.get(slug=slug)  # dodać potem try/except
+        user = request.user
+
+        # docker
+        container_name = "{}_{}".format(user.username, exercise.id)
+        client = docker.from_env()
+
+        # pobieranie kontenera, bądź uruchamianie
+        try:
+            container = client.containers.get(container_name)
+            container.start()
+
+            tests = ast.literal_eval(container.exec_run("python3 test_list.py", stdout=True)[
+                1].decode("utf-8"))
+        except docker.errors.NotFound:
+            container = setup_container(user, exercise, container_name)
+            # container = client.containers.run(
+            #     image=exercise.image_name,
+            #     detach=True,
+            #     tty=True,
+            #     name=container_name
+            # )
+            # start_code = container.exec_run("cat exercise.py", stdout=True)
+
+            # # tests:
+            # tests = ast.literal_eval(container.exec_run("python3 test_list.py", stdout=True)[
+            #     1].decode("utf-8"))
+            # ExerciseUser.objects.create(
+            #     exercise=exercise,
+            #     user=user,
+            #     code=start_code
+            # )
+
+            # for counter, test in enumerate(tests, 1):
+            #     exercise_test = ExerciseTest.objects.get(
+            #         exercise=exercise, test_number=counter)
+            #     ExerciseTestUser.objects.create(
+            #         user=user,
+            #         exercise_test=exercise_test,
+            #         output=None,
+            #     )
+
+        code = container.exec_run("cat exercise.py", stdout=True)
+
+        exercise_user = ExerciseUser.objects.get(user=user, exercise=exercise)
+        comments = ExerciseUserComment.objects.filter(
+            exercise=exercise).order_by("-date")
+
+        exercise_tests = ExerciseTest.objects.filter(
+            exercise=exercise).order_by("-test_number")
+        test_users = ExerciseTestUser.objects.filter(
+            user=user, exercise_test__in=exercise_tests)[::-1]
+
+        return render(request, "exercise/exercise.html", {
+            'code': code[1].decode("ascii"),
+            "container_name": container_name,
+            "exercise": exercise,
+            "exercise_user": exercise_user,
+            "comments": comments,
+            # "tests": tests,
+            "test_users": test_users
+        })
+
+    # redirect user to home page
     def handle_no_permission(self):
         return redirect(reverse("index"))
