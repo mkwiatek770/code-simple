@@ -1,0 +1,89 @@
+{% extends 'base_landing.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}
+    Create an account
+{% endblock %}
+{% block style %}
+    .hidden_el{
+        visibility: hidden;
+    }
+{% endblock %}
+
+
+{% block main %}
+    <div class="row w-100">
+        <div class="col-md-8 mx-auto col-11" style="background-color: white; padding:0;">
+            <h4 style="border-bottom: 1px solid black; text-align:center; padding:15px 5px 15px 5px; width: 90%; margin-left: auto; margin-right: auto;">JOIN OUR COMMUNITY</h4>
+            
+            
+                {% for k, error in errors.items %}
+                    {{ error }}
+                {% endfor %}
+            
+            <form method="POST" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">Username:</label>
+                    {% render_field form.username class="form-control" %}
+                </div>
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">Password:</label>
+                    {% render_field form.password type="password" class="form-control" id="password" %}
+                    
+                </div>
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">Confirm password:</label>
+                    <input type="password" class="form-control" id="conf_password" name="conf_password">
+                    <small class="form-text hidden_el" style="color:red;" id="validationMessage">Password does not match</small>
+                </div>
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">Email:</label>
+                    {% render_field form.email class="form-control" required=True %}
+                </div>
+                <div class="form-group p-2">
+                    <label class="font-weight-bold" >Favourite Programming Language:</label>
+                    {% render_field form.favourite_language class="form-control" %}
+                    
+                </div>
+                <div class="form-group p-2">
+                    <label for="file" class=" font-weight-bold ">Avatar</label>
+                    {% render_field form.avatar class="form-control-file"  %}
+                    <small class="form-text text-muted" id="fileHelp">Max 3mb size</small>
+                </div>
+                
+
+                <input type="submit" class="btn btn-primary mt-5 w-100" id="signUpbutton" style="height: 50px; font-size: 25px;" value="SIGN UP FREE">
+            </form>
+        </div>
+    </div>
+
+    
+    
+    <script>
+        var password = document.getElementById("password");
+        var conf_password = document.getElementById("conf_password");
+        var validationMessage = document.getElementById("validationMessage")
+        var btn = document.getElementById("signUpbutton");
+
+        conf_password.addEventListener("blur", function(event){
+            console.log(password.value)
+            console.log(conf_password.value)
+            if (password.value !== conf_password.value){
+                validationMessage.classList.remove("hidden_el");
+                password.style.border = "1px solid red";
+                conf_password.style.border = "1px solid red";
+                btn.disabled = true;               
+            }
+            else{
+                validationMessage.classList.add("hidden_el");
+                password.style.border = "1px solid #ced4da";
+                conf_password.style.border = "1px solid #ced4da";
+                btn.disabled = false;
+            }
+        })
+    </script>
+
+{% endblock %}
+

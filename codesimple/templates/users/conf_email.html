@@ -1,0 +1,21 @@
+{% extends 'base_landing.html' %}
+
+{% load static %}
+
+{% block title %}
+    CodeSimple - Activate Your Mail
+{% endblock %}
+
+{% block main %}
+    <div class="row">
+        <div class="col-12 col-md-6 mx-auto bg-light" style="padding:0; height: 40vh; position:absolute; top:50%; left:50%; transform: translate(-50%, -50%);">
+            <div class="jumbotron" style="position:relative; margin:0; padding:0; height: 100%;">
+                <h1>Hi {{ user.username }},</h1>
+                <hr>
+                <h4>Please confirm your email adress to complete the registration</h4>
+                <img src="{% static 'img/page/brand_dark.png' %}" style="max-height: 70px; position: absolute; bottom: 0; right:0;" class="img-fluid" alt="">
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
