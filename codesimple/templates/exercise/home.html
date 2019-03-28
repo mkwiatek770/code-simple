@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+    
+    {% load static %}
+    {% block head %}
+        <style>
+            .notification-bell{
+                position: relative;
+            }
+
+            .notification-counter{
+                content: "";
+                width: 20px;
+                height: 20px;
+                line-height: 20px;
+                text-align:center;
+                color: white;
+                position: absolute;
+                top: 10%;
+                right: 10%;
+                border-radius: 50%;
+                background-color: red;
+            }
+
+            #loading{
+                    background: url('{% static 'gif/loading.gif' %}') no-repeat center center;
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    height: 100%;
+                    width: 100%;
+                    z-index: 9999999;
+            }
+        </style>
+
+    {% endblock %}
+
+    {% block content %}
+    
+    {% comment %} Loading div {% endcomment %}
+    <div id="loading"></div>
+
+    {% comment %} Achievements {% endcomment %}
+    {% if achievements %}
+        {% for achievement in achievements %}
+            <div  class="modal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        {% comment %} <div class="modal-header">
+                            <button class="close" data-dismiss="modal">&times;</button>
+                        </div> {% endcomment %}
+                        <div class="modal-body">
+                            <h5 class="text-center font-weight-bold">You've unlocked</h5>
+                            <h5 class="text-center font-weight-bold">{{ achievement.title }}</h5>
+                            <div class="row mt-5">
+                                <div class="col-4">
+                                    <img src="{{ achievement.icon.url }}" style="height: 70px;">
+                                </div>
+                                <div class="col-8">
+                                    <p>{{ achievement.description }}</p>
+                                    <p>Reward points: +{{ achievement.reward_points }}<i class="fab fa-adn"></i></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="" class="btn btn-outline-primary">GO TO BADGES</a>
+                            <button class="ml-auto btn btn-outline-success" data-dismiss="modal">CONTINUE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% comment %} New level modal {% endcomment %}
+    {% if new_level %}
+            <div  class="modal" id="levelModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">CONGRATULATIONS</h5>
+                            <button class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <h5 class="text-center font-weight-bold">Congratulations - New Level</h5>
+                            <div class="row mt-5">
+                                <div class="col-6">
+                                    <div style="padding: 10%;" id="canvas" style="position: relative;">
+                                        <canvas id="circle" width="100" height="100"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <p>New Level: {{ request.user.level }} {{ request.user.get_level_display }}</p>
+                                    <p class="text-muted">XP: {{ user.experience_pts }}</p>
+                                    <p class="text-muted">{{ user.next_level_in }} more experience points to next level</p>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="" class="btn btn-outline-primary">GO TO BADGES</a>
+                            <button class="ml-auto btn btn-outline-success" data-dismiss="modal">CONTINUE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endif %}
+
+    <div class="container mt-5">
+        <div class="row">
+            <!-- left section -->
+            <div class="col-xs-12 col-md-9">
+                
+                <!-- EXERCISE OF THE DAY -->
+                <div class="row">
+                    <div class="col">
+                        
+                        <div class="card exercise-card"  style="border: 1px solid black">
+                            <div class="card-header">
+                                DAILY CHALLENGE
+                            </div>
+                            <div class="card-body">
+                                <h4 class="card-title">{{ exercise_random.title }}</h4>
+                                <p class="card-text">{{ exercise_random.short_description }}</p>
+                                <div class="row">
+                                    <div class="col">
+                                        {% for tag in exercise_random.tags.all %}
+                                            <a href="/home?tag={{ tag.slug }}" class="bg-dark text-white p-1 mr-1 my-1 d-inline-block"><small>{{ tag.name }}</small></a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-3 col-4">
+                                    <i class="far fa-heart"></i> {{ exercise_random.likes }}
+                                    </div>
+                                    <div class="col-md-3 col-4">
+                                    <i class="fas fa-heart-broken"></i> {{ exercise_random.dislikes }}
+                                    </div>
+                                    <div class="col-md-3 col-4">
+                                    <i class="fas fa-code"></i> {{ exercise_random.get_level_display }}
+                                    </div>
+                                    <div class="col-md-3 d-none d-md-block">
+                                    <i class="fab fa-adn"></i> {{ exercise_random.experience_points }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <a href="">
+                        {% comment %} <a href="{% url 'exercise' slug=exercise_random.slug %}"> {% endcomment %}
+                            <button style="border-radius:0px; height:50px;" class="btn btn-large btn-primary w-100">SOLVE NOW</button>
+                        </a>
+                    </div>
+                </div>
+
+                <p style="border-bottom: 1px solid black" class="mt-5">
+                {% if filter_type %}
+                    SEARCH RESULTS FOR "<span class="font-weight-bold">{{ filter_type }}</span>"
+                {% else %}
+                    EXERCISES
+                {% endif %}
+                </p>
+                
+                {% for exercise in exercises %}
+                    <div class="row mt-4">
+                        <div class="col">
+                            
+                            <div class="card exercise-card"  style="border: 1px solid black">
+                                <div class="card-body">
+                                    <h4 class="card-title">{{ exercise.title }}</h4>
+                                    <p class="card-text">{{ exercise.short_description }}</p>
+                                    <div class="row">
+                                        <div class="col">
+                                            {% for tag in exercise.tags.all %}
+                                                <a href="/home?tag={{ tag.slug }}" class="bg-dark text-white p-1 mr-1 my-1 d-inline-block"><small>{{ tag.name }}</small></a>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-3 col-4">
+                                        <i class="far fa-heart"></i> {{ exercise.likes }}
+                                        </div>
+                                        <div class="col-md-3 col-4">
+                                        <i class="fas fa-heart-broken"></i> {{ exercise.dislikes }}
+                                        </div>
+                                        <div class="col-md-3 col-4">
+                                        <i class="fas fa-code"></i> {{ exercise.get_level_display }}
+                                        </div>
+                                        <div class="col-md-3 d-none d-md-block">
+                                        <i class="fab fa-adn"></i> {{ exercise.experience_points }}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <a href="">
+                            {% comment %} <a href="{% url 'exercise' slug=exercise.slug %}"> {% endcomment %}
+                                <button style="border-radius:0px; height:50px;" class="btn btn-large btn-primary w-100">SOLVE NOW</button>
+                            </a>
+
+                        </div>
+                    </div>
+                {% endfor %}
+
+
+                <!--  -->
+            </div>
+
+            <hr>
+            <!-- right section -->
+            <div class="col-xs-12 col-md-3">
+                <!-- SEARCH -->
+                <p style="border-bottom: 1px solid black">SEARCH</p>
+                <form method="POST" class="mb-5">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="phrase" placeholder="Keyword (title, category etc.)">
+                    </div>
+                    <button class="btn btn-outline-secondary w-100" type="submit" name="search">Search</button>
+                </form>
+
+                <p style="border-bottom: 1px solid black" class="mt-5">FILTER EXERCISES</p>
+                <form method="POST" class="mb-5" style="border: 1px solid black;">
+                    {% csrf_token %}
+                    <div class="form-group p-1">
+                        <label>Category</label>
+                        <select class="form-control" name="tag">
+                            <option value="all">All</option>
+                            {% for tag in tags %}
+                                <option value="{{ tag.pk }}">{{ tag.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group p-1">
+                        <label>Language</label>
+                        <select class="form-control" name="language">
+                            <option value="all">All</option>
+                            <option value="Python">Python</option>
+                            <option value="Javascript">Javascript</option>
+                        </select>
+                    </div>
+                    <div class="form-group p-1">
+                        <label>Dificulty</label>
+                        <select class="form-control" name="level">
+                                <option value="all">All</option>                                
+                            {% for level in levels %}
+                                <option value="{{ level.0 }}">{{ level.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button style="border-radius:0px; height:50px;" class="btn btn-large btn-primary w-100" type="submit" name="filter">FILTER</button>
+                </form>
+
+
+                <p style="border-bottom: 1px solid black" class="mt-5">FILTER EXERCISES</p>
+
+                    {% for tag in tags %}
+                        <div class="d-inline-block py-1"><a href="/home?tag={{ tag.slug }}" class="bg-dark text-white p-1 mr-1 my-1">{{ tag.name }}</a></div> 
+                    {% endfor %}
+            </div>
+        
+        </div>
+    
+
+        <div class="pagination">
+            <span class="page-links">
+                    <a href="/?page=1">previous</a>
+                <span class="page-current">
+                    Page 2 of 3.
+                </span>
+                    <a href="/?page=3">next</a>
+            </span>
+        </div>
+
+    </div>
+  
+    {% endblock %}
+
+
+    {% block script %}
+        <script>
+            $(".modal").modal("show");
+
+            function hideLoader() {
+                $('#loading').hide();
+            }
+
+            function redirectToExercise(location){
+                setTimeout(function(){
+                window.location.replace(location)                    
+                }, 1000)
+                
+            }
+
+
+            var exercise_cards = $(".exercise-card");
+            var exercise_cards_links = exercise_cards.next();
+            var loading = $("#loading");
+            
+            exercise_cards_links.on("click", function(event){
+                event.preventDefault();
+                
+                $("#loading").show();
+                setTimeout(hideLoader, 20 * 1000);
+
+                var location = $(this).attr("href");
+                console.log(location);
+
+                var callback = function(){
+                    redirectToExercise(location);
+                }
+
+                $.ajax({
+                    url: location,
+                    type: "GET"
+                }).done(
+                    callback
+                );
+            })
+
+        </script>
+    {% endblock %}
+
+
