@@ -90,17 +90,20 @@ class ProfileUser(AbstractUser):
         return self.username
 
     def current_level_experience_pts(self):
-        return self.LEVELS_EXPERIENCE[self.level][1] - self.LEVELS_EXPERIENCE[self.level - 1][1]
+        next_lvl_experience = self.LEVELS_EXPERIENCE[self.level][1]
+        current_lvl_experience = self.LEVELS_EXPERIENCE[self.level - 1][1]
+        return next_lvl_experience - current_lvl_experience
 
     def calculate_level(self):
         experience_points = self.experience_pts
-        current_level = self.level
+        lvl = self.level
 
-        if self.LEVELS_EXPERIENCE[current_level][1] > experience_points:
+        if self.LEVELS_EXPERIENCE[lvl][1] > experience_points:
             return self.level
         else:
-            for counter, lvl in enumerate(self.LEVELS_EXPERIENCE[current_level: -1], current_level):
-                if self.LEVELS_EXPERIENCE[counter + 1][1] > experience_points and experience_points >= lvl[1]:
+            for i, lvl in enumerate(self.LEVELS_EXPERIENCE[lvl: -1], lvl):
+                if (self.LEVELS_EXPERIENCE[i + 1][1] > experience_points and
+                        experience_points >= lvl[1]):
                     return lvl[0]
 
     def save(self, *args, **kwargs):
