@@ -19,6 +19,7 @@ from users.models import (
 from exercise.models import ExerciseUser
 from users.forms import (
     ProfileUserForm,
+    ProfileUserUpdateForm
 )
 
 # sending mail
@@ -148,3 +149,17 @@ def activate(request, uidb64, token):
         return redirect(reverse('home'))
     else:
         return HttpResponse('Activation link is invalid!')
+
+
+class ProfileUserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+
+    model = ProfileUser
+    form_class = ProfileUserUpdateForm
+    template_name = "users/update.html"
+    success_message = "Profile has been succesfully updated!"
+
+    def get_success_url(self):
+        return reverse_lazy("home")
+
+    def handle_no_permission(self):
+        return reverse_lazy("index")

@@ -1,0 +1,61 @@
+{% extends 'base_landing.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}
+    Update an account
+{% endblock %}
+{% block style %}
+{% endblock %}
+
+
+{% block main %}
+    <div class="row w-100">
+        <div class="col-md-8 mx-auto col-11" style="background-color: white; padding:0;">
+            <h4 style="border-bottom: 1px solid black; text-align:center; padding:15px 5px 15px 5px; width: 90%; margin-left: auto; margin-right: auto;">JOIN OUR COMMUNITY</h4>
+            
+            
+                {% for k, error in errors.items %}
+                    {{ error }}
+                {% endfor %}
+            
+            <form method="POST" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">Username:</label>
+                    {% render_field form.username class="form-control" %}
+                </div>
+
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">First Name:</label>
+                    {% render_field form.first_name class="form-control" %}
+                </div>
+
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">Last Name:</label>
+                    {% render_field form.last_name class="form-control" %}
+                </div>
+                
+                <div class="form-group p-2">
+                    <label class="font-weight-bold" >Favourite Programming Language:</label>
+                    {% render_field form.favourite_language class="form-control" %}
+                    
+                </div>
+                <div class="form-group p-2">
+                    <label for="file" class=" font-weight-bold ">Avatar</label>
+                    {% render_field form.avatar class="form-control-file" %}
+                    <small class="form-text text-muted" id="fileHelp">Max 3mb size</small>
+                </div>
+                
+
+                <input type="submit" class="btn btn-primary mt-5 w-100" id="signUpbutton" style="height: 50px; font-size: 25px;" value="UPDATE ACCOUNT">
+            </form>
+        </div>
+    </div>
+
+
+    {% comment %} <script>
+        var first_name = document.getElementById()
+    </script> {% endcomment %}
+
+{% endblock %}
