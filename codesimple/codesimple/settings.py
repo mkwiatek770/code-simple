@@ -1,5 +1,5 @@
 import os
-from codesimple.secrets import *
+# from codesimple.secrets import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -13,6 +13,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # Application definition
 
@@ -89,9 +90,9 @@ WSGI_APPLICATION = 'codesimple.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASSWORD,
+        'NAME': "code_simple",
+        'USER': "postgres",
+        'PASSWORD': os.environ.get("DBPASSWORD"),
         'HOST': 'localhost',
         'PORT': '5432',
     }
