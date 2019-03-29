@@ -249,7 +249,7 @@ Zadanie fibbonaci
                             <div class="col-12 mb-4" style="border-bottom: 1px solid gray;">
                                 <div class="row">
                                     <div class="col-2">
-                                        <img style=" height:50px; border-radius:100%" src="{% static 'img/page/avatar.png' %}" alt="">
+                                        <img style=" height:50px; border-radius:100%" src="{{ comment.user.avatar.url }}" alt="">
                                     </div>
                                     <div class="col-10">
                                         <p class="font-weight-bold">{{ comment.user.username }}</p>
@@ -441,7 +441,15 @@ Zadanie fibbonaci
 
     var likeclicked = false
     var dislikeclicked = false
-
+    
+    if (likeBtn.hasAttribute("data-clicked")){
+        likeclicked = true;
+        likeBtn.disabled = true;
+    }
+    else if (dislikeBtn.hasAttribute("data-clicked")){
+        dislikeclicked = true;
+        dislikeBtn.disabled = true;
+    }
 
     likeBtn.addEventListener("click", function(event){
         event.stopPropagation()
