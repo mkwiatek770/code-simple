@@ -8,6 +8,7 @@ from django.views.generic import (
     FormView,
     UpdateView,
     DetailView,
+    ListView
 )
 from users.models import (
     ProfileUser,
@@ -21,6 +22,7 @@ from users.forms import (
 from exercise.models import (
     ExerciseUser
 )
+from django.db.models import Q
 # sending mail
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -244,3 +246,32 @@ class UserMessageDetailView(DetailView):
             self.context_object_name: message,
             **kwargs
         })
+
+
+class UserMessageListView(LoginRequiredMixin, ListView):
+    model = UserMessage
+    template_name = "users/messages.html"
+    context_object_name = "user_messages"
+
+    def get_queryset(self):
+        queryset = UserMessage.objects.filter(
+            Q(sender=self.request.user) |
+            Q(receiver=self.request.user)).order_by("-date_sent")
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+
+        filter_option = request.POST.get("filter")
+
+        if filter_option == 'all':
+            return self.get(request)
+        else:
+            if filter_option == 'read':
+                self.get_queryset = self.get_queryset().filter(read=True)
+            elif filter_option == 'unread':
+                self.get_queryset = self.get_queryset().filter(read=False)
+
+            return render(request, self.template_name, {
+                self.context_object_name: self.get_queryset,
+                **kwargs
+            })

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    CodeSimple | {{ request.user }} messages
+{% endblock %}
+
+{% block head %}
+    <style>
+        *{
+            outline: 0;
+        }
+        a.active{
+            border-bottom: 1px solid red;
+            
+        }
+
+        a.tab-item{
+            color: black;
+        }
+
+        a:hover .message-item{
+            background-color: #eee;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h4 style='border-bottom: 1px solid black; margin-bottom: 20px;'>MESSAGES</h4>
+             <div class="card " style="border:none;">
+                <div class="card-header"> 
+                    <ul class="nav  card-header-tabs pull-right"  id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active tab-item" style="color:black;" id="stats-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">RECEIVED</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link tab-item" id="tasks-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">SENT</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="myTabContent">
+                        {% comment %} RECEIVED {% endcomment %}
+                        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="stats-tab">
+                            <div class="row mb-4">
+                                <div class="col">
+                                    <form class="form-inline" method="POST">
+                                        {% csrf_token %}
+                                        <select class="form-control mr-3 ml-auto" name="filter" id="gender" style="width: 100px;">
+                                            <option value="all">All</option>
+                                            <option value="read">Read</option>
+                                            <option value="unread">Unread</option>
+                                        </select>
+                                        <button class="btn btn-outline-primary" type="submit">FILTER</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    {% for message in user_messages %}
+                                        {% if message.receiver == request.user %}
+                                            <a href="{% url 'message_detail' pk=message.pk %}" style="color: black; cursor:pointer; text-decoration:none;">
+                                                <div class="row message-item" style="border:1px solid black; padding: 10px 0;">
+                                                    {% if not message.read %}
+                                                        <div class="col-4">
+                                                            <p class="font-weight-bold" style="margin-bottom:0;">{{ message.sender }}</p>
+                                                        </div>
+                                                        <div class="col-8">
+                                                            <p class="font-weight-bold" style="margin-bottom:0;">{{ message.subject }}</p>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="col-4">
+                                                            <p style="margin-bottom:0;">{{ message.sender }}</p>
+                                                        </div>
+                                                        <div class="col-8">
+                                                            <p style="margin-bottom:0;">{{ message.subject }}</p>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </a>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% comment %} SENT {% endcomment %}
+                        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="tasks-tab">
+                            <div class="row">
+                                <div class="col-12">
+                                    {% for message in user_messages %}
+                                        {% if message.sender == request.user %}
+                                            <a href="{% url 'message_detail' pk=message.pk %}" style="color: black; cursor:pointer; text-decoration:none;">
+                                                <div class="row message-item" style="border:1px solid black; padding: 10px 0;">
+
+                                                    <div class="col-4">
+                                                        <p  style="margin-bottom: 0;">{{ message.receiver }}</p>
+                                                    </div>
+                                                    <div class="col-8">
+                                                        <p  style="margin-bottom: 0;">{{ message.subject }}</p>
+                                                    </div>
+
+                                                </div>
+                                            </a>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+{% endblock %}
