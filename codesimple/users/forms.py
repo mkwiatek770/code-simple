@@ -1,5 +1,6 @@
 from django import forms
 from users.models import ProfileUser
+from ckeditor.widgets import CKEditorWidget
 
 
 class ProfileUserForm(forms.ModelForm):
@@ -20,3 +21,9 @@ class ProfileUserUpdateForm(forms.ModelForm):
             "favourite_language",
             "avatar"
         )
+
+
+class UserMessageForm(forms.Form):
+
+    subject = forms.CharField(max_length=255)
+    message = forms.CharField(widget=CKEditorWidget())

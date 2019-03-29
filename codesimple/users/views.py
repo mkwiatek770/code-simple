@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import (
     FormView,
     UpdateView,
@@ -10,10 +11,12 @@ from django.views.generic import (
 )
 from users.models import (
     ProfileUser,
+    UserMessage
 )
 from users.forms import (
     ProfileUserForm,
-    ProfileUserUpdateForm
+    ProfileUserUpdateForm,
+    UserMessageForm
 )
 from exercise.models import (
     ExerciseUser
@@ -181,3 +184,46 @@ class ProfileUserDetailView(DetailView):
 
     def get_object(self):
         return ProfileUser.objects.get(username=self.kwargs.get("username"))
+
+
+class UserMessageView(LoginRequiredMixin, View):
+    """View for sending messages to other users"""
+
+    def get(self, request, receiver):
+        sender = request.user
+        receiver = ProfileUser.objects.get(username=receiver)
+
+        if sender == receiver:
+            raise Http404("You can't send message to yourself!")
+        form = UserMessageForm()
+
+        return render(request, "users/message.html", {
+            "sender": sender,
+            "receiver": receiver,
+            'form': form
+        })
+
+    def post(self, request, receiver):
+
+        form = UserMessageForm(request.POST)
+
+        if form.is_valid():
+
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            receiver = ProfileUser.objects.get(username=receiver)
+
+            UserMessage.objects.create(
+                sender=request.user,
+                receiver=receiver,
+                subject=subject,
+                message=message
+            )
+
+            messages.success(request, "Message has been sent")
+
+            return redirect(reverse("home"))
+
+        else:
+            messages.warning(request, "Invalid credentials")
+            return self.get(request, receiver)

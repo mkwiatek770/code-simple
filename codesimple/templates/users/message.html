@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}
+CodeSimple | Send Message 
+{% endblock %}
+
+{% block head %}
+    <style>
+       body{
+            background-image: url("{% static 'img/page/bg.jpg' %}");
+            
+        }
+
+        #cke_id_message{
+            width: ;
+        }
+
+        .django-ckeditor-widget{
+            display: block !important;
+        }
+
+
+
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row w-100">
+        <div class="col-md-8 mx-auto col-11" style="background-color: white; padding:0;">
+            <h4 style="border-bottom: 1px solid black; text-align:center; padding:15px 5px 15px 5px; width: 90%; margin-left: auto; margin-right: auto;">SEND PRIVATE MESSAGE</h4>
+            
+            
+                {% for k, error in errors.items %}
+                    {{ error }}
+                {% endfor %}
+            
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">From:</label>
+                    <input class="form-control" readonly="true" type="text" value="{{ sender }}">
+                </div>
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">To:</label>
+                    <input class="form-control" readonly="true" type="text" value="{{ receiver }}">
+                </div>
+                
+                <div class="form-group p-2">
+                    <label class="font-weight-bold">Subject:</label>
+                    {% render_field form.subject class="form-control" %}
+                </div>
+
+                {{ form.media }}
+                <div class="form-group p-2">
+                    <label class="font-weight-bold" >Message:</label>
+                    {% render_field form.message class="form-control" %}
+                    
+                </div>
+                
+
+                <input type="submit" class="btn btn-primary mt-5 w-100" id="signUpbutton" style="height: 50px; font-size: 25px;" value="SEND MESSAGE">
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+<script>
+    // script that sets width of #cke_id_message to none
+    document.addEventListener("DOMContentLoaded", function(event){
+        var removed = false;
+
+        var handler = window.setInterval(
+            function(){
+                if (removed === true){
+                    window.clearTimeout(handler)
+                }
+                var el = document.querySelector("#cke_id_message");
+                if (el !== null){
+                    el.style.width = "";
+                    removed = true;
+                }
+
+            },
+            25
+        )
+    })
+</script>
+
+{% endblock %}

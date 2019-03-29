@@ -33,4 +33,9 @@ urlpatterns = [
         views.ProfileUserDetailView.as_view(),
          name="profile_detail"
          ),
+    path(
+        "message-send/<receiver>/",
+         views.UserMessageView.as_view(),
+         name="send_message"
+         ),
 ]
