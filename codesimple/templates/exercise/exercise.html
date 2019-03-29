@@ -138,12 +138,12 @@ Zadanie fibbonaci
                 
                 {% if exercise_user.traceback %}
                     {% comment %} Traceback {% endcomment %}
-                        <div class="traceback" style="margin-left: 15px; font-size: 20px; color: white; background-color: black;">
+                        <div class="traceback" style="padding:20px; margin-left: 15px; font-size: 20px; color: white; background-color: black;">
                             {{ exercise_user.traceback }}
                         </div>
                     
                 {% else %}     
-                        <div class="traceback" style="display:none; font-size: 20px; color: white; background-color: black;">
+                        <div class="traceback" style="padding: 20px; margin-left:15px; display:none; font-size: 20px; color: white; background-color: black;">
                         </div>
                 {% endif %} 
                 </div>                
