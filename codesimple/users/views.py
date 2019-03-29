@@ -1,22 +1,15 @@
-from django.views import View
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     FormView,
     UpdateView,
-    DetailView,
-    ListView,
-    TemplateView
 )
 from users.models import (
     ProfileUser,
-    UserMessage,
 )
-from exercise.models import ExerciseUser
 from users.forms import (
     ProfileUserForm,
     ProfileUserUpdateForm
@@ -99,7 +92,6 @@ class SignUpView(FormView):
 
             current_site = get_current_site(request)
 
-            mail_subject = "Activate your account."
             message = render_to_string("components/acc_activate_email.html", {
                 'user': user,
                 'domain': current_site.domain,
@@ -113,7 +105,8 @@ class SignUpView(FormView):
                 {
                     'user': user,
                     'domain': current_site.domain,
-                    'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+                    'uid': urlsafe_base64_encode(
+                        force_bytes(user.pk)).decode(),
                     'token': account_activation_token.make_token(user)
                 },
                 settings.EMAIL_HOST_USER,
@@ -151,7 +144,8 @@ def activate(request, uidb64, token):
         return HttpResponse('Activation link is invalid!')
 
 
-class ProfileUserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class ProfileUserUpdateView(
+        LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
     model = ProfileUser
     form_class = ProfileUserUpdateForm

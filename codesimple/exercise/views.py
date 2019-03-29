@@ -19,7 +19,6 @@ from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 import ast
-import json
 import docker
 
 
@@ -171,8 +170,12 @@ def setup_container(user, exercise, container_name):
     start_code = container.exec_run("cat exercise.py", stdout=True)
 
     # tests:
-    tests = ast.literal_eval(container.exec_run("python3 test_list.py", stdout=True)[
-        1].decode("utf-8"))
+    tests = ast.literal_eval(
+        container.exec_run(
+            "python3 test_list.py",
+            stdout=True
+        )[1].decode("utf-8")
+    )
     ExerciseUser.objects.create(
         exercise=exercise,
         user=user,
@@ -193,16 +196,11 @@ def setup_container(user, exercise, container_name):
 class ExerciseView(LoginRequiredMixin, View):
     """View for Exercise dedicated for user"""
 
-    # tu będzie logika, która będzie sprawdzała czy obecnie zalogowany użytkownik ma w bazie
-    # ExerciseUser rekord jeśli tak - to wystartuj kontener o nazwie <użytkownik>_<zadanie_id>
-    # jeśli nie to stwórz nowy kontener, zwróć to co jest w polu code w tabeli ExerciseUser,
-    # dodać w template logikę że jeśli użytkownik nie dostał jeszcze response od API czy
-    # jego testy przeszły (bo jeszcze nie uruchamiał) - to nie pozwól kliknąc na przycisk submit
-    # zwrócić kod który pobierze z kontenera (docker container exec -it cat exercise.py)
     def get(self, request, slug):
-        """If User has been into this exercise, container will exists in memory
-        so container on specific name will be started. Otherwise new container will
-        be started, also there will be new object in ExerciseUser model.
+        """If User has been into this exercise, container will exists in
+         memory so container on specific name will be started.
+        Otherwise new container will be started, also there will be new
+         object in ExerciseUser model.
 
         To allow comunication with containers - we use docker library.
         We fetch code using `cat <filename>`. This code is passed to context.
@@ -219,35 +217,8 @@ class ExerciseView(LoginRequiredMixin, View):
             container = client.containers.get(container_name)
             container.start()
 
-            tests = ast.literal_eval(container.exec_run("python3 test_list.py", stdout=True)[
-                1].decode("utf-8"))
         except docker.errors.NotFound:
             container = setup_container(user, exercise, container_name)
-            # container = client.containers.run(
-            #     image=exercise.image_name,
-            #     detach=True,
-            #     tty=True,
-            #     name=container_name
-            # )
-            # start_code = container.exec_run("cat exercise.py", stdout=True)
-
-            # # tests:
-            # tests = ast.literal_eval(container.exec_run("python3 test_list.py", stdout=True)[
-            #     1].decode("utf-8"))
-            # ExerciseUser.objects.create(
-            #     exercise=exercise,
-            #     user=user,
-            #     code=start_code
-            # )
-
-            # for counter, test in enumerate(tests, 1):
-            #     exercise_test = ExerciseTest.objects.get(
-            #         exercise=exercise, test_number=counter)
-            #     ExerciseTestUser.objects.create(
-            #         user=user,
-            #         exercise_test=exercise_test,
-            #         output=None,
-            #     )
 
         code = container.exec_run("cat exercise.py", stdout=True)
 

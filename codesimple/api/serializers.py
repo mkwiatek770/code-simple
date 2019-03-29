@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from exercise.models import ExerciseUser
 
 
 class CodeSerializer(serializers.Serializer):
