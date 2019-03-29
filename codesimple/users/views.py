@@ -291,3 +291,7 @@ class UserRankingListView(View):
             'users': users,
             "sort_type": sort_type
         })
+
+
+class BadgesListView(TemplateView):
+    template_name = "users/badges.html"

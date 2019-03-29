@@ -58,4 +58,10 @@ urlpatterns = [
         views.UserRankingListView.as_view(),
         name="ranking"
         ),
+    path(
+        "badges/",
+        views.BadgesListView.as_view(),
+        name="badges"
+        ),
+
 ]
