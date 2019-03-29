@@ -373,7 +373,6 @@ Zadanie fibbonaci
 
         var accordion = document.getElementById("accordion");
         var div_traceback = document.querySelector(".traceback");
-
         if (response.traceback === null){
 
 
@@ -386,9 +385,8 @@ Zadanie fibbonaci
 
             for (var i = 0; i < response.tests.length; i++){
                 
-
                 var icon = test_headers.eq(i).find("h5").find("a").find("i");
-                if (response.tests[i][1] === response.tests[i][2]){
+                if (response.tests[i][3] == "OK"){
                     icon.removeClass("fa-times").addClass("fa-check").css("color", "green");
                 }
                 else {

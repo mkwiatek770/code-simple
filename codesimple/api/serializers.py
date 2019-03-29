@@ -15,7 +15,8 @@ class ExerciseUserSerializer(serializers.Serializer):
     tests = serializers.ListField(
         child=serializers.ListField(
             child=serializers.CharField(),
-        )
+        ),
+
     )
     traceback = serializers.CharField(allow_blank=True, allow_null=True)
 

@@ -5,9 +5,13 @@ from exercise.models import (
     ExerciseTestUser,
     ExerciseUserComment
 )
+from users.models import (
+    ProfileUser,
+)
 from api.serializers import (
     CodeSerializer,
     ExerciseUserSerializer,
+    ExerciseUserSubmitSerializer
 )
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -81,7 +85,8 @@ class CodeAPIView(APIView):
             TESTS.append([
                 str(test_user.exercise_test.user_input),
                 str(test_user.output),
-                str(test_user.exercise_test.expected_output)
+                str(test_user.exercise_test.expected_output),
+                "OK" if test_user.passed else "FAIL"
             ])
 
         if exercise_user.traceback:
@@ -150,10 +155,10 @@ class CodeAPIView(APIView):
 
                     if test[3] == "FAIL":
                         exercise_user.solved = False
-                        exercise_test_user.solved = False
+                        exercise_test_user.passed = False
                         all_passed = False
                     else:
-                        exercise_test_user.solved = True
+                        exercise_test_user.passed = True
                     exercise_test_user.save()
 
                 else:
@@ -177,8 +182,57 @@ class CodeAPIView(APIView):
             return JsonResponse({
                 'solved': exercise_user.solved,
                 'traceback': traceback,
-                'tests': tests
+                "tests": tests
             })
         else:
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class SubmitAPIView(APIView):
+    """View for submit exercise.
+    It's executed after clicking submit button.
+    """
+
+    def get(self, request, exercise_id, user_id, format=None, message=None, new_level=False):  # noqa
+        data = {
+            "message": message,
+        }
+        serializer = ExerciseUserSubmitSerializer(data=data)
+
+        if serializer.is_valid():
+            return JsonResponse(serializer.data)
+        else:
+            return JsonResponse(serializer.errors)
+
+    def post(self, request, exercise_id, user_id, format=None):
+        exercise_user = ExerciseUser.objects.get(
+            exercise__id=exercise_id, user__id=user_id)
+
+        if exercise_user.submitted:
+            msg = f"Congratulations, you've solved exercise {exercise_user.exercise.title}"  # noqa
+            return self.get(request, exercise_id, user_id, message=msg)
+        else:
+            exercise_user.submitted = True
+            exercise_user.save()
+
+            points_to_gain = exercise_user.exercise.experience_points
+            user = ProfileUser.objects.get(pk=user_id)
+
+            level_before = user.level
+            user.experience_pts += points_to_gain
+            level_after = user.level
+            user.save()
+
+            if level_before != level_after:
+                new_level = True
+            else:
+                new_level = False
+
+            msg = f"Congratulations, you've solved exercise {exercise_user.exercise.title} Points +{points_to_gain}"  # noqa
+            return self.get(
+                request,
+                exercise_id,
+                user_id, message=msg,
+                new_level=new_level
+            )

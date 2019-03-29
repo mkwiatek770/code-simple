@@ -99,6 +99,9 @@ class ExerciseTestUser(models.Model):
     output = models.CharField(max_length=255, null=True)
     passed = models.NullBooleanField()  # passed > solved
 
+    def __str_(self):
+        return f"{self.user} - {self.exercise_test.exercise.title}"
+
 
 class ExerciseUserComment(models.Model):
     user = models.ForeignKey("users.ProfileUser", on_delete=models.CASCADE)
