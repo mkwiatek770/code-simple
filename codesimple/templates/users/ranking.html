@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    CodeSimple | Ranking
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row" style='border-bottom: 1px solid black; margin-bottom: 20px; padding-bottom: 10px;'>
+            <div class="col-9">
+                <h4 >RANKING</h4>
+            </div>
+            <div class="col-3">
+                <div class="form-group">
+                    <select class="form-control" id="order-type" name="order_type">
+                        {% if sort_type == "ascending" %}
+                            <option value="ascending">Ascending</option>
+                            <option value="descending">Descending</option>
+                        {% else %}
+                            <option value="descending">Descending</option>
+                            <option value="ascending">Ascending</option>
+                        {% endif %}
+                        
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Favourite Language</th>
+                    <th scope="col">XP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if sort_type == "descending" %}
+                    {% for user in users reversed %}
+                        {% if user == request.user %}
+                        <tr style="background-color: #ccc">
+                        {% else %}
+                        <tr>
+                        {% endif %}
+                            <th scope="row">{{ forloop.revcounter }}</th>
+                            <td class="font-weight-bold">
+                                <a style="color: black;"  href="{% url 'profile_detail' username=user.username %}">
+                                {{ user.username }}
+                                </a>
+                            </td>
+                            <td>{{ user.level }} - {{ user.get_level_display }}</td>
+                            <td>{{ user.favourite_language }}</td>
+                            <td>{{ user.experience_pts }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    {% for user in users %}
+                        {% if user == request.user %}
+                        <tr style="background-color: #ccc">
+                        {% else %}
+                        <tr>
+                        {% endif %}
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td class="font-weight-bold">
+                                <a style="color: black;"  href="{% url 'profile_detail' username=user.username %}">
+                                {{ user.username }}
+                                </a>
+                            </td>
+                            <td>{{ user.level }} - {{ user.get_level_display }}</td>
+                            <td>{{ user.favourite_language }}</td>
+                            <td>{{ user.experience_pts }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+
+            </tbody>
+        </table>
+    </div>
+
+
+{% endblock %}
+
+{% block script %}
+    
+    <script>
+        var select = document.getElementById("order-type");
+        select.addEventListener("change", function(event){
+            var sort_type = this.value;
+
+            var redirect = `http://localhost:8000/users/ranking/?sort_type=${sort_type}`;
+            window.location = redirect;
+            //$.redirect(redirect, {'sort_type': sort_type, "csrfmiddlewaretoken": "{{ csrf_token }}" });
+
+            
+        })
+    </script>
+
+{% endblock %}

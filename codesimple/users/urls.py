@@ -53,4 +53,9 @@ urlpatterns = [
         views.UserNotificationsView.as_view(),
          name="notifications"
          ),
+    path(
+        "ranking/",
+        views.UserRankingListView.as_view(),
+        name="ranking"
+        ),
 ]

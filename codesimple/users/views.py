@@ -280,3 +280,14 @@ class UserMessageListView(LoginRequiredMixin, ListView):
 
 class UserNotificationsView(LoginRequiredMixin, TemplateView):
     template_name = "users/notifications.html"
+
+
+class UserRankingListView(View):
+    def get(self, request):
+        sort_type = request.GET.get("sort_type", "ascending")
+        users = ProfileUser.objects.all().order_by("-experience_pts")
+
+        return render(request, "users/ranking.html", {
+            'users': users,
+            "sort_type": sort_type
+        })
