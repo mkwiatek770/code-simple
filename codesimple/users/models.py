@@ -89,6 +89,9 @@ class ProfileUser(AbstractUser):
     def __str__(self):
         return self.username
 
+    def next_level_in(self):
+        return self.LEVELS_EXPERIENCE[self.level][1] - self.experience_pts
+
     def current_level_experience_pts(self):
         next_lvl_experience = self.LEVELS_EXPERIENCE[self.level][1]
         current_lvl_experience = self.LEVELS_EXPERIENCE[self.level - 1][1]

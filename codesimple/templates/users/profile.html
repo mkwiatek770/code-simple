@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+{{ user.username }} | CodeSimple
+{% endblock %}
+
+{% block head %}
+    <style>
+        *{
+            outline: 0;
+        }
+        a.active{
+            border-bottom: 1px solid red;
+            
+        }
+
+        a.tab-item{
+            color: black;
+        }
+
+        .bs-tooltip-auto[x-placement^=bottom] .arrow::before,
+        .bs-tooltip-bottom .arrow::before {
+        border-bottom-color: #f00; /* Red */
+        }
+
+        .tooltip-main {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        font-weight: 700;
+        background: #f3f3f3;
+        border: 1px solid #737373;
+        color: #737373;
+        margin: 4px 121px 0 5px;
+        float: right;
+        text-align: left !important;
+        }
+
+        .tooltip-qm {
+        float: left;
+        margin: -2px 0px 3px 4px;
+        font-size: 12px;
+        }
+
+        .tooltip-inner {
+        max-width: 236px !important;
+        height: 76px;
+        font-size: 12px;
+        padding: 10px 15px 10px 20px;
+        background: #FFFFFF;
+        color: rgb(0, 0, 0, .7);
+        border: 1px solid #737373;
+        text-align: left;
+        }
+
+        .tooltip.show {
+        opacity: 1;
+        }
+
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="row" style="margin: 20px auto; width: 90%;">
+        <div class="col-4 offset-md-2 col-md-2 col-lg-1">
+            <img src="{{ user.avatar.url }}" style="height: 70px;" alt="">
+        </div>
+        <div class="col-8 col-md-3">
+            <p class="font-weight-bold">{{ user.username }}</p>
+            <p class="text-muted">LEVEL {{ user.level }}</p>
+            {% if request.user != user %}
+            <p><a href="{% url 'send_message' receiver=user.username %}">Send message</a></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2">
+             <div class="card ">
+                <div class="card-header"> 
+                    <ul class="nav  card-header-tabs pull-right"  id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active tab-item" style="color:black;" id="stats-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">STATS</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link tab-item" id="tasks-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">TASKS</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link tab-item" id="badges-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">BADGES</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="myTabContent">
+                        {% comment %} STATS {% endcomment %}
+                        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="stats-tab">
+                            <div class="row">
+                                <div class="col-12 col-md-6" style="border-right: 1px solid black;">
+                                    <div style="padding: 10%;" id="canvas" style="position: relative;">
+                                        <canvas id="circle" width="150" height="150"></canvas>
+                                    </div>
+                                    <p>LEVEL: {{ user.level }}</p>
+                                    <p class="text-muted">XP: {{ user.experience_pts }}</p>
+                                    <p class="text-muted">{{ user.next_level_in }} more experience points to next level</p>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <p class="font-weight-bold">All Tasks: {{ user_exercises|length }}</p>
+                                    <p class="font-weight-bold">Tasks Done: {{ user_exercises_solved|length }}</p>
+                                    <p class="font-weight-bold">Experience points: {{ user.experience_pts }}</p>
+                                    <p class="font-weight-bold">Badges: {{ user.badges.all|length }}</p>
+                                    <p class="font-weight-bold">Favourite Language: {{ user.favourite_language }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% comment %} TASKS {% endcomment %}
+                        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="tasks-tab">
+                            <div class="row">
+                                <div class="col-12">
+
+                        
+                             {% for e in user_exercises %}
+                                    <div class="row mt-4">
+                                        <div class="col">
+                                            
+                                            <div class="card"  style="border: 1px solid black">
+                                                <div class="card-header">
+                                                    <h4 class="card-title" style="margin:0px; padding:0px;">{{ e.exercise.title }}</h4>
+                                                </div>
+                                                <div class="card-body">
+                                                    
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            {% for tag in e.exercise.tags.all %}
+                                                                <a href="/home?tag={{ tag.slug }}" class="bg-dark text-white p-1 mr-1 my-1 d-inline-block"><small>{{ tag.name }}</small></a>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                    <hr>
+                                                    <div class="row">
+                                                        <div class="col-md-3 col-4">
+                                                        <i class="far fa-heart"></i> {{ e.exercise.likes }}
+                                                        </div>
+                                                        <div class="col-md-3 col-4">
+                                                        <i class="fas fa-heart-broken"></i> {{ e.exercise.dislikes }}
+                                                        </div>
+                                                        <div class="col-md-3 col-4">
+                                                        <i class="fas fa-code"></i> {{ e.exercise.get_level_display }}
+                                                        </div>
+                                                        <div class="col-md-3 d-none d-md-block">
+                                                        <i class="fab fa-adn"></i> {{ e.exercise.experience_points }}
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <a href="{% url 'exercise' slug=e.exercise.slug %}">
+                                                <button style="border-radius:0px; height:50px;" class="btn btn-large btn-primary w-100">GO TO EXERCISE</button>
+                                            </a>
+
+                                        </div>
+                                    </div>
+                                {% endfor %}
+
+    
+                                </div>
+                            </div>
+                        </div>
+                        {% comment %} BADGES {% endcomment %}
+                        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="badges-tab">
+                            <div class="row">
+                                {% for badge in user.badges.all %}
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <div class="text-center">
+                                        <img src="/media/{{ badge.icon }}" alt="" style="height: 100px; cursor:pointer;" data-toggle="tooltip" data-placement="top" data-html="true" title="<p>{{ badge.description }}</p><p>Reward: {{ badge.reward_points }} XP</p>">
+                                        <p class="font-weight-bold" style="margin-top: 10px;" >{{ badge.title }}</p>                                    
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <h2>No badges</h2>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
+
+{% block script %}
+    <script>
+var experience_points = "{{ user.experience_pts }}"
+var to_next_level = "{{ user.next_level_in }}"
+var level_experience = "{{ user.current_level_experience_pts }}"
+console.log(experience_points);
+console.log(to_next_level);
+
+
+{% comment %} Chart.defaults.scale.ticks.beginAtZero = true; {% endcomment %}
+
+	Chart.pluginService.register({
+		beforeDraw: function (chart) {
+			if (chart.config.options.elements.center) {
+        //Get ctx from string
+        var ctx = chart.chart.ctx;
+        
+				//Get options from the center object in options
+        var centerConfig = chart.config.options.elements.center;
+      	var fontStyle = centerConfig.fontStyle || 'Arial';
+				var txt = centerConfig.text;
+        var color = centerConfig.color || '#000';
+        var sidePadding = centerConfig.sidePadding || 20;
+        var sidePaddingCalculated = (sidePadding/100) * (chart.innerRadius * 2)
+        //Start with a base font of 30px
+        ctx.font = "30px " + fontStyle;
+        
+				//Get the width of the string and also the width of the element minus 10 to give it 5px side padding
+        var stringWidth = ctx.measureText(txt).width;
+        var elementWidth = (chart.innerRadius * 2) - sidePaddingCalculated;
+
+        // Find out how much the font can grow in width.
+        var widthRatio = elementWidth / stringWidth;
+        var newFontSize = Math.floor(30 * widthRatio);
+        var elementHeight = (chart.innerRadius * 2);
+
+        // Pick a new font size so it will not be larger than the height of label.
+        var fontSizeToUse = Math.min(newFontSize, elementHeight);
+
+				//Set font settings to draw it correctly.
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        var centerX = ((chart.chartArea.left + chart.chartArea.right) / 2);
+        var centerY = ((chart.chartArea.top + chart.chartArea.bottom) / 2);
+        ctx.font = fontSizeToUse+"px " + fontStyle;
+        ctx.fillStyle = color;
+        
+        //Draw text in center
+        ctx.fillText(txt, centerX, centerY);
+			}
+		}
+	});
+
+var ctx = document.getElementById("circle").getContext('2d');
+var myDoughnutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ["Experience points: ", "To nex level"],
+        datasets: [
+            {
+                label: 'Points',
+                backgroundColor: ['yellow', 'gray'],
+                data: [level_experience - to_next_level, to_next_level]
+            }
+        ]
+    },
+    options: {
+        animation: {
+            animateScale: true
+        },
+        legend: {
+            display: false
+        },
+        elements: {
+            center: {
+                text: "Next level: {{ user.level|add:1 }}",
+                color: "black",
+                fontStyle: "Arial",
+                sidePadding: 20
+            }
+        }
+    }
+
+});
+
+
+    // init tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    </script>
+{% endblock %}

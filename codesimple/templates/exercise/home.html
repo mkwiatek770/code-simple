@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
     
     {% load static %}
+
+    {% block title %}
+        CodeSimple | {{ request.user }}
+    {% endblock %}
+
     {% block head %}
         <style>
             .notification-bell{

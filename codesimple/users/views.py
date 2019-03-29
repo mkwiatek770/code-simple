@@ -6,6 +6,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     FormView,
     UpdateView,
+    DetailView,
 )
 from users.models import (
     ProfileUser,
@@ -14,7 +15,9 @@ from users.forms import (
     ProfileUserForm,
     ProfileUserUpdateForm
 )
-
+from exercise.models import (
+    ExerciseUser
+)
 # sending mail
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -146,7 +149,7 @@ def activate(request, uidb64, token):
 
 class ProfileUserUpdateView(
         LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-
+    """Generic View for updating ProfileUser informations"""
     model = ProfileUser
     form_class = ProfileUserUpdateForm
     template_name = "users/update.html"
@@ -157,3 +160,24 @@ class ProfileUserUpdateView(
 
     def handle_no_permission(self):
         return reverse_lazy("index")
+
+
+class ProfileUserDetailView(DetailView):
+    """Generic View for specific user's details"""
+
+    model = ProfileUser
+    template_name = "users/profile.html"
+    context_object_name = "user"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_exercises = ExerciseUser.objects.filter(user=self.get_object())
+        user_exercises_solved = user_exercises.filter(submitted=True)
+
+        context['user_exercises'] = user_exercises
+        context['user_exercises_solved'] = user_exercises_solved
+
+        return context
+
+    def get_object(self):
+        return ProfileUser.objects.get(username=self.kwargs.get("username"))

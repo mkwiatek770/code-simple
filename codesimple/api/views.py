@@ -194,7 +194,7 @@ class SubmitAPIView(APIView):
     It's executed after clicking submit button.
     """
 
-    def get(self, request, exercise_id, user_id, format=None, message=None, new_level=False):  # noqa
+    def get(self, request, exercise_id, user_id, format=None, message=None, new_level=False):  # noqat
         data = {
             "message": message,
         }
