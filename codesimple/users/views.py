@@ -8,7 +8,8 @@ from django.views.generic import (
     FormView,
     UpdateView,
     DetailView,
-    ListView
+    ListView,
+    TemplateView
 )
 from users.models import (
     ProfileUser,
@@ -275,3 +276,7 @@ class UserMessageListView(LoginRequiredMixin, ListView):
                 self.context_object_name: self.get_queryset,
                 **kwargs
             })
+
+
+class UserNotificationsView(LoginRequiredMixin, TemplateView):
+    template_name = "users/notifications.html"

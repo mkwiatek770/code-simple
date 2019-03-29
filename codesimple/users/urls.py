@@ -48,4 +48,9 @@ urlpatterns = [
         views.UserMessageListView.as_view(),
         name="messages"
         ),
+    path(
+        "notifications/",
+        views.UserNotificationsView.as_view(),
+         name="notifications"
+         ),
 ]
