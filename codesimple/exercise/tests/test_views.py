@@ -17,14 +17,14 @@ class TestLandingPageView(TestCase):
         )
 
     def test_not_logged_user(self):
-        """Test GET method for logged user"""
+        """Test GET method for not logged user"""
         response = self.client.get(LANDING_URL, follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "exercise/index.html")
 
     def test_logged_user(self):
-        """Test GET method for not logged user"""
+        """Test GET method for  logged user"""
         self.client.force_login(self.user)
         response = self.client.get(LANDING_URL, follow=True)
 
