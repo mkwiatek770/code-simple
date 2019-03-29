@@ -2,6 +2,8 @@ from django.test import TestCase
 from django.urls import reverse
 from users.models import ProfileUser, Badge
 from exercise.models import Tag, Exercise
+import mock
+from django.core.files import File
 
 LANDING_URL = reverse("index")
 HOME_URL = reverse("home")
@@ -11,9 +13,13 @@ class TestLandingPageView(TestCase):
     """Tests for LandingPageView"""
 
     def setUp(self):
+        file_mock = mock.MagicMock(spec=File, name='FileMock')
+        file_mock.name = 'test1.png'
         self.user = ProfileUser.objects.create(
             username="username",
-            password="password"
+            password="password",
+            email="somemail@o2.pl",
+            avatar=file_mock
         )
 
     def test_not_logged_user(self):
@@ -65,10 +71,14 @@ class TestHomeView(TestCase):
 
     def setUp(self):
         self.badge = self.create_badge()
+
+        file_mock = mock.MagicMock(spec=File, name='FileMock')
+        file_mock.name = 'test1.png'
         self.user = ProfileUser.objects.create(
             username="username",
             password="password",
-            email="email@gmail.com"
+            email="email@gmail.com",
+            avatar=file_mock,
         )
 
     def test_get_logged_in(self):
