@@ -38,4 +38,9 @@ urlpatterns = [
          views.UserMessageView.as_view(),
          name="send_message"
          ),
+    path(
+        "message/<int:pk>/",
+        views.UserMessageDetailView.as_view(),
+         name="message_detail"
+         ),
 ]

@@ -227,3 +227,20 @@ class UserMessageView(LoginRequiredMixin, View):
         else:
             messages.warning(request, "Invalid credentials")
             return self.get(request, receiver)
+
+
+class UserMessageDetailView(DetailView):
+    model = UserMessage
+    template_name = "users/message_detail.html"
+    context_object_name = "message"
+
+    def get(self, request, pk,  *args, **kwargs):
+
+        message = self.get_object()
+        if not message.read:
+            message.read = True
+            message.save()
+        return render(request, self.template_name, {
+            self.context_object_name: message,
+            **kwargs
+        })

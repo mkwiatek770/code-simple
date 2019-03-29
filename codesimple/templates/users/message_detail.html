@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    {{ message.subject|truncatewords:6 }} - CodeSimple
+{% endblock %}
+
+{% block head %}
+    <style>
+        div, p{
+            font-size: 25px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>{{ message.subject }}</h2>
+        <hr>
+        <div class="row">
+            <div class="col-6 col-md-8"><p><span class="font-weight-bold">From:</span> {{ message.sender }}</p></div>
+            {% comment %} <div class="col-2"><p>{{ message.date_sent|date:"Y-d-m   H:i" }}</p></div> {% endcomment %}
+            <div class="col-6 col-md-4"><small class="text-muted">{{ message.date_sent|date:"n M Y H:i" }}  ({{ message.date_sent|timesince }} ago)</small></div>
+        </div>
+        <br>
+        
+        <p>{{ message.message|safe }}</p>
+        <hr>
+        
+        {% if message.sender != request.user %}
+            <a style="display: block;" class="text-right" href="{% url 'send_message' receiver=message.sender %}"><button class="btn btn-success">Reply</button></a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}
