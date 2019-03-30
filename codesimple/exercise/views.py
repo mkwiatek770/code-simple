@@ -72,7 +72,6 @@ class HomeView(LoginRequiredMixin, View):
     """homepage View for displaying available exercises"""
 
     def __init__(self):
-        self.exercise_random = Exercise.objects.order_by('?').first()
         self.exercises = Exercise.objects.all().order_by("-id")
         self.tags = Tag.objects.all()
         self.levels = Exercise.LEVELS
@@ -110,10 +109,14 @@ class HomeView(LoginRequiredMixin, View):
         page = request.GET.get("page")
         exercises = paginator.get_page(page)
 
+        # random_exercise
+        exercise_random_id = request.session.get("random_exercise_id")
+        exercise_random = Exercise.objects.get(id=exercise_random_id)
+
         return render(request, "exercise/home.html", {
             # 'exercises': self.exercises,
             'exercises': exercises,
-            'exercise_random': self.exercise_random,
+            'exercise_random': exercise_random,
             'tags': self.tags,
             'levels': self.levels,
             **kwargs
@@ -152,9 +155,13 @@ class HomeView(LoginRequiredMixin, View):
             )
             kwargs['filter_type'] = search_phrase
 
+        # random_exercise
+        exercise_random_id = request.session.get("random_exercise_id")
+        exercise_random = Exercise.objects.get(id=exercise_random_id)
+
         return render(request, "exercise/home.html", {
             'exercises': self.exercises,
-            'exercise_random': self.exercise_random,
+            "exercise_random": exercise_random,
             'tags': self.tags,
             'levels': self.levels,
             **kwargs

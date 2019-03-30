@@ -21,7 +21,8 @@ from users.forms import (
     UserMessageForm
 )
 from exercise.models import (
-    ExerciseUser
+    ExerciseUser,
+    Exercise
 )
 from django.db.models import Q
 # sending mail
@@ -42,6 +43,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 
 
+def random_exercise(request):
+    return Exercise.objects.all().order_by("?").first()
+
+
 def signin(request):
     """view to login user, if user clicked REMEMBER ME
     button session will be set to 30 days, otherwise, session will
@@ -60,6 +65,10 @@ def signin(request):
             request.session.set_expiry(60 * 60 * 24 * 30)
         else:
             request.session.set_expiry(0)
+
+        # handle setting random_exercise
+        exercise = random_exercise(request)
+        request.session["random_exercise_id"] = exercise.id
 
         return redirect(reverse("home"))
     else:
