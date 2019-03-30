@@ -302,6 +302,39 @@ Zadanie fibbonaci
     </div>
 
 
+    {% comment %} New level modal {% endcomment %}
+    
+    <div  class="modal" id="levelModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">CONGRATULATIONS</h5>
+                    <button class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="text-center font-weight-bold">Congratulations - New Level</h5>
+                    <div class="row mt-5">
+                        <div class="col-6">
+                            <div style="padding: 10%;" id="canvas" style="position: relative;">
+                                <canvas id="circle" width="100" height="100"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <p>New Level: {{ request.user.level }} {{ request.user.get_level_display }}</p>
+                            <p class="text-muted">XP: {{ user.experience_pts }}</p>
+                            <p class="text-muted">{{ request.user.next_level_in }} more experience points to next level</p>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="" class="btn btn-outline-primary">GO TO BADGES</a>
+                    <button class="ml-auto btn btn-outline-success" data-dismiss="modal">CONTINUE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ACE LOGIC -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.2/ace.js" type="text/javascript" charset="utf-8"></script>
     <script
@@ -364,8 +397,14 @@ Zadanie fibbonaci
         var submitModal = $("#submitModal");
         var submitBody = $(".submit-modal-body")
         
+        console.log(response)
         submitModal.modal("show");
         submitBody.text(response.message);
+
+        if (response.new_level){
+            $("#levelModal").modal("show")
+        }
+         
         
     }
 
@@ -572,8 +611,98 @@ Zadanie fibbonaci
         document.getElementById("message").value = "";
 
     })
+    
 
 
+</script>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    var experience_points = "{{ user.experience_pts }}"
+var to_next_level = "{{ user.next_level_in }}"
+var level_experience = "{{ user.current_level_experience_pts }}"
+console.log(experience_points);
+console.log(to_next_level);
+
+
+{% comment %} Chart.defaults.scale.ticks.beginAtZero = true; {% endcomment %}
+
+	Chart.pluginService.register({
+		beforeDraw: function (chart) {
+			if (chart.config.options.elements.center) {
+        //Get ctx from string
+        var ctx = chart.chart.ctx;
+        
+				//Get options from the center object in options
+        var centerConfig = chart.config.options.elements.center;
+      	var fontStyle = centerConfig.fontStyle || 'Arial';
+				var txt = centerConfig.text;
+        var color = centerConfig.color || '#000';
+        var sidePadding = centerConfig.sidePadding || 20;
+        var sidePaddingCalculated = (sidePadding/100) * (chart.innerRadius * 2)
+        //Start with a base font of 30px
+        ctx.font = "30px " + fontStyle;
+        
+				//Get the width of the string and also the width of the element minus 10 to give it 5px side padding
+        var stringWidth = ctx.measureText(txt).width;
+        var elementWidth = (chart.innerRadius * 2) - sidePaddingCalculated;
+
+        // Find out how much the font can grow in width.
+        var widthRatio = elementWidth / stringWidth;
+        var newFontSize = Math.floor(30 * widthRatio);
+        var elementHeight = (chart.innerRadius * 2);
+
+        // Pick a new font size so it will not be larger than the height of label.
+        var fontSizeToUse = Math.min(newFontSize, elementHeight);
+
+				//Set font settings to draw it correctly.
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        var centerX = ((chart.chartArea.left + chart.chartArea.right) / 2);
+        var centerY = ((chart.chartArea.top + chart.chartArea.bottom) / 2);
+        ctx.font = fontSizeToUse+"px " + fontStyle;
+        ctx.fillStyle = color;
+        
+        //Draw text in center
+        ctx.fillText(txt, centerX, centerY);
+			}
+		}
+	});
+
+var ctx = document.getElementById("circle").getContext('2d');
+var myDoughnutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ["Experience points: ", "To nex level"],
+        datasets: [
+            {
+                label: 'Points',
+                backgroundColor: ['yellow', 'gray'],
+                data: [level_experience - to_next_level, to_next_level]
+            }
+        ]
+    },
+    options: {
+        animation: {
+            animateScale: true
+        },
+        legend: {
+            display: false
+        },
+        elements: {
+            center: {
+                text: "Next level: {{ user.level|add:1 }}",
+                color: "black",
+                fontStyle: "Arial",
+                sidePadding: 20
+            }
+        }
+    }
+
+});
 </script>
 
 {% endblock %}

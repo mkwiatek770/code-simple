@@ -23,3 +23,4 @@ class ExerciseUserSerializer(serializers.Serializer):
 
 class ExerciseUserSubmitSerializer(serializers.Serializer):
     message = serializers.CharField(allow_blank=True, allow_null=True)
+    new_level = serializers.BooleanField()

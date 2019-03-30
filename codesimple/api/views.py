@@ -197,6 +197,7 @@ class SubmitAPIView(APIView):
     def get(self, request, exercise_id, user_id, format=None, message=None, new_level=False):  # noqat
         data = {
             "message": message,
+            "new_level": new_level
         }
         serializer = ExerciseUserSubmitSerializer(data=data)
 
@@ -221,8 +222,8 @@ class SubmitAPIView(APIView):
 
             level_before = user.level
             user.experience_pts += points_to_gain
-            level_after = user.level
             user.save()
+            level_after = user.level
 
             if level_before != level_after:
                 new_level = True

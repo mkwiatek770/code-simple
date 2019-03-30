@@ -68,7 +68,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <a href="" class="btn btn-outline-primary">GO TO BADGES</a>
+                            <a href="{% url 'badges' %}" class="btn btn-outline-primary">GO TO BADGES</a>
                             <button class="ml-auto btn btn-outline-success" data-dismiss="modal">CONTINUE</button>
                         </div>
                     </div>
@@ -80,6 +80,9 @@
     {% comment %} New level modal {% endcomment %}
     {% if new_level %}
             <div  class="modal" id="levelModal">
+    {% else %}
+            <div style="display: none;">
+    {% endif %}
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -109,7 +112,7 @@
                     </div>
                 </div>
             </div>
-    {% endif %}
+    
 
     <div class="container mt-5">
         <div class="row">
@@ -209,6 +212,47 @@
                     </div>
                 {% endfor %}
 
+                <!-- PAGINATION CENTERED -->
+                <nav class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        {% if exercises.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ exercises.previous_page_number }}">Previous</a>
+                            {% else %}
+                        <li class="page-item disabled">
+                            <p class="page-link disabled">Previous</p>
+                            {% endif %}
+                        </li>
+                        {% for number in exercises.paginator.page_range %}
+                            {% if number == exercises.number %}
+                            <li class="page-item active">
+                                <a class="page-link" href="?page={{ number }}">{{ number }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ number }}">{{ number }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if exercises.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ exercises.next_page_number }}">Next</a>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <p class="page-link">Next</p>
+                        {% endif %}
+                        </li>
+                    </ul>
+                </nav>
+                {% for number in exercises.paginator.page_range %}
+                    {% if number == exercises.number %}
+                        zonk
+                    {% else %}
+                        {{ number }}
+                    {% endif %}
+                {% endfor %}
+
 
                 <!--  -->
             </div>
@@ -269,16 +313,6 @@
         </div>
     
 
-        <div class="pagination">
-            <span class="page-links">
-                    <a href="/?page=1">previous</a>
-                <span class="page-current">
-                    Page 2 of 3.
-                </span>
-                    <a href="/?page=3">next</a>
-            </span>
-        </div>
-
     </div>
   
     {% endblock %}
@@ -311,7 +345,6 @@
                 setTimeout(hideLoader, 20 * 1000);
 
                 var location = $(this).attr("href");
-                console.log(location);
 
                 var callback = function(){
                     redirectToExercise(location);
@@ -324,6 +357,91 @@
                     callback
                 );
             })
+
+
+
+    var experience_points = "{{ user.experience_pts }}"
+    var to_next_level = "{{ user.next_level_in }}"
+    var level_experience = "{{ user.current_level_experience_pts }}"
+
+
+
+{% comment %} Chart.defaults.scale.ticks.beginAtZero = true; {% endcomment %}
+
+	Chart.pluginService.register({
+		beforeDraw: function (chart) {
+			if (chart.config.options.elements.center) {
+        //Get ctx from string
+        var ctx = chart.chart.ctx;
+        
+				//Get options from the center object in options
+        var centerConfig = chart.config.options.elements.center;
+      	var fontStyle = centerConfig.fontStyle || 'Arial';
+				var txt = centerConfig.text;
+        var color = centerConfig.color || '#000';
+        var sidePadding = centerConfig.sidePadding || 20;
+        var sidePaddingCalculated = (sidePadding/100) * (chart.innerRadius * 2)
+        //Start with a base font of 30px
+        ctx.font = "30px " + fontStyle;
+        
+				//Get the width of the string and also the width of the element minus 10 to give it 5px side padding
+        var stringWidth = ctx.measureText(txt).width;
+        var elementWidth = (chart.innerRadius * 2) - sidePaddingCalculated;
+
+        // Find out how much the font can grow in width.
+        var widthRatio = elementWidth / stringWidth;
+        var newFontSize = Math.floor(30 * widthRatio);
+        var elementHeight = (chart.innerRadius * 2);
+
+        // Pick a new font size so it will not be larger than the height of label.
+        var fontSizeToUse = Math.min(newFontSize, elementHeight);
+
+				//Set font settings to draw it correctly.
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        var centerX = ((chart.chartArea.left + chart.chartArea.right) / 2);
+        var centerY = ((chart.chartArea.top + chart.chartArea.bottom) / 2);
+        ctx.font = fontSizeToUse+"px " + fontStyle;
+        ctx.fillStyle = color;
+        
+        //Draw text in center
+        ctx.fillText(txt, centerX, centerY);
+			}
+		}
+	});
+
+var ctx = document.getElementById("circle").getContext('2d');
+var myDoughnutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ["Experience points: ", "To nex level"],
+        datasets: [
+            {
+                label: 'Points',
+                backgroundColor: ['yellow', 'gray'],
+                data: [level_experience - to_next_level, to_next_level]
+            }
+        ]
+    },
+    options: {
+        animation: {
+            animateScale: true
+        },
+        legend: {
+            display: false
+        },
+        elements: {
+            center: {
+                text: "Next level: {{ user.level|add:1 }}",
+                color: "black",
+                fontStyle: "Arial",
+                sidePadding: 20
+            }
+        }
+    }
+
+});
+    
 
         </script>
     {% endblock %}
