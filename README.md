@@ -35,4 +35,6 @@ Every exercise related with specific user is docker container which keeps, exerc
 
 You are ready to go :)
 
+### Working with containers architecture
+![alt text](https://i.imgur.com/eUz40Sb.png "Architecture")
 
