@@ -1,7 +1,6 @@
 # code-simple
 ---
-.. image:: https://travis-ci.org/mkwiatek770/code-simple.png
-    :target: https://travis-ci.org/Tivix/code-simple
+![alt text](https://api.travis-ci.org/mkwiatek770/code-simple.png "TravisCI")
 
 App to practice programming skills, and compete with friends. Exercises with many difficulty levels. Every one will find suitable exercise for its skill. Compare your progress with friends.
 
@@ -27,10 +26,11 @@ Every exercise related with specific user is docker container which keeps, exerc
 1. Clone Git repository
 2. Create virtualenv with python 3.6 `virtualenv -p python3.6 venv`
 3. Activate virtualenv using `source venv/bin/activate`
-4. Setup psql database with name `code_simple`
-5. Populate database `psql -U postgres -f db_dump.sql -h localhost code_simple`
-6. `python manage.py makemigrations`
-7. `python manage.py migrate`
+4. Install dependencies `pip install -r requirements.txt`
+5. Setup psql database with name `code_simple`
+6. Populate database `psql -U postgres -f db_dump.sql -h localhost code_simple`
+7. `python manage.py makemigrations`
+8. `python manage.py migrate`
 
 You are ready to go :)
 
