@@ -1,5 +1,7 @@
 # code-simple
 ---
+.. image:: https://travis-ci.org/mkwiatek770/code-simple.png
+    :target: https://travis-ci.org/Tivix/code-simple
 
 App to practice programming skills, and compete with friends. Exercises with many difficulty levels. Every one will find suitable exercise for its skill. Compare your progress with friends.
 
