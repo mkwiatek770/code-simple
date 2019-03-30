@@ -29,6 +29,7 @@ Every exercise related with specific user is docker container which keeps, exerc
 5. Populate database `psql -U postgres -f db_dump.sql -h localhost code_simple`
 6. `python manage.py makemigrations`
 7. `python manage.py migrate`
-*You *are *ready *to *go *:)
+
+You are ready to go :)
 
 
