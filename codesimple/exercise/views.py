@@ -111,7 +111,10 @@ class HomeView(LoginRequiredMixin, View):
 
         # random_exercise
         exercise_random_id = request.session.get("random_exercise_id")
-        exercise_random = Exercise.objects.get(id=exercise_random_id)
+        if exercise_random_id:
+            exercise_random = Exercise.objects.get(id=exercise_random_id)
+        else:
+            exercise_random = None
 
         return render(request, "exercise/home.html", {
             # 'exercises': self.exercises,
@@ -156,8 +159,12 @@ class HomeView(LoginRequiredMixin, View):
             kwargs['filter_type'] = search_phrase
 
         # random_exercise
+
         exercise_random_id = request.session.get("random_exercise_id")
-        exercise_random = Exercise.objects.get(id=exercise_random_id)
+        if exercise_random_id:
+            exercise_random = Exercise.objects.get(id=exercise_random_id)
+        else:
+            exercise_random = None
 
         return render(request, "exercise/home.html", {
             'exercises': self.exercises,

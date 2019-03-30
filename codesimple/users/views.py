@@ -44,7 +44,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 def random_exercise(request):
-    return Exercise.objects.all().order_by("?").first()
+    try:
+        return Exercise.objects.all().order_by("?").first()
+    except Exercise.DoesNotExist:
+        return None
 
 
 def signin(request):
@@ -68,7 +71,10 @@ def signin(request):
 
         # handle setting random_exercise
         exercise = random_exercise(request)
-        request.session["random_exercise_id"] = exercise.id
+        if exercise:
+            request.session["random_exercise_id"] = exercise.id
+        else:
+            request.session["random_exercise_id"] = None
 
         return redirect(reverse("home"))
     else:
