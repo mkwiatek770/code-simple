@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.core.paginator import Paginator
 from django.views import View
 from django.views.generic import (
     TemplateView,
@@ -68,10 +69,11 @@ class LandingPageView(TemplateView):
 
 
 class HomeView(LoginRequiredMixin, View):
+    """homepage View for displaying available exercises"""
 
     def __init__(self):
         self.exercise_random = Exercise.objects.order_by('?').first()
-        self.exercises = Exercise.objects.all()
+        self.exercises = Exercise.objects.all().order_by("-id")
         self.tags = Tag.objects.all()
         self.levels = Exercise.LEVELS
 
@@ -103,8 +105,14 @@ class HomeView(LoginRequiredMixin, View):
         if level_before != level_after:
             kwargs["new_level"] = True
 
+        # pagination
+        paginator = Paginator(self.exercises, 5)
+        page = request.GET.get("page")
+        exercises = paginator.get_page(page)
+
         return render(request, "exercise/home.html", {
-            'exercises': self.exercises,
+            # 'exercises': self.exercises,
+            'exercises': exercises,
             'exercise_random': self.exercise_random,
             'tags': self.tags,
             'levels': self.levels,

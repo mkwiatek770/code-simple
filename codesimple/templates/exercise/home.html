@@ -212,6 +212,7 @@
                     </div>
                 {% endfor %}
 
+                {% if exercises.paginator.num_pages != 1 %}
                 <!-- PAGINATION CENTERED -->
                 <nav class="mt-5">
                     <ul class="pagination justify-content-center">
@@ -245,13 +246,7 @@
                         </li>
                     </ul>
                 </nav>
-                {% for number in exercises.paginator.page_range %}
-                    {% if number == exercises.number %}
-                        zonk
-                    {% else %}
-                        {{ number }}
-                    {% endif %}
-                {% endfor %}
+                {% endif %}
 
 
                 <!--  -->
