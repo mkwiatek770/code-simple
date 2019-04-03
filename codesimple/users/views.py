@@ -255,7 +255,7 @@ class UserMessageDetailView(DetailView):
     def get(self, request, pk,  *args, **kwargs):
 
         message = self.get_object()
-        if not message.read:
+        if not message.read and request.user == message.receiver:
             message.read = True
             message.save()
         return render(request, self.template_name, {

@@ -251,7 +251,7 @@ class ExerciseView(LoginRequiredMixin, View):
         exercise_tests = ExerciseTest.objects.filter(
             exercise=exercise).order_by("-test_number")
         test_users = ExerciseTestUser.objects.filter(
-            user=user, exercise_test__in=exercise_tests)[::-1]
+            user=user, exercise_test__in=exercise_tests)
 
         return render(request, "exercise/exercise.html", {
             'code': code[1].decode("ascii"),
@@ -260,7 +260,7 @@ class ExerciseView(LoginRequiredMixin, View):
             "exercise_user": exercise_user,
             "comments": comments,
             # "tests": tests,
-            "test_users": test_users
+            "test_users": test_users[::-1]
         })
 
     # redirect user to home page
